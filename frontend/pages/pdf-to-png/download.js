@@ -1,0 +1,493 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import Layout from "../../components/Layout"
+import {
+  Download,
+  FileText,
+  CheckCircle,
+  Share2,
+  RefreshCw,
+  Shield,
+  Zap,
+  Copy,
+  ChevronRight,
+  Sparkles,
+  ArrowRight,
+  Lock,
+  ImageIcon,
+  Timer,
+} from "lucide-react"
+
+export default function DownloadPDFtoPNG() {
+  const router = useRouter()
+  const { jobId } = router.query
+  const [downloadData, setDownloadData] = useState(null)
+  const [downloading, setDownloading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [downloadComplete, setDownloadComplete] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [countdown, setCountdown] = useState(3600)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    const stored = sessionStorage.getItem("pdfToPngDownload")
+    if (stored) {
+      setDownloadData(JSON.parse(stored))
+      setTimeout(() => setShowSuccess(true), 100)
+    } else if (!jobId) {
+      router.push("/pdf-to-png")
+    }
+  }, [jobId, router])
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1)
+      }, 1000)
+      return () => clearInterval(timer)
+    }
+  }, [countdown])
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, "0")}`
+  }
+
+  // Fixed handleDownload function for pdf-to-png download page
+// Replace the existing handleDownload function in your download page with this:
+
+const handleDownload = async () => {
+  if (!downloadData?.jobId) return
+  setDownloading(true)
+
+  try {
+    // Use the generic download endpoint that your backend provides
+    const downloadUrl = `http://localhost:5000/api/download/${downloadData.jobId}`
+    
+    const response = await fetch(downloadUrl)
+    
+    if (!response.ok) {
+      throw new Error('Download failed')
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    
+    // Get filename from Content-Disposition header or use default
+    const contentDisposition = response.headers.get("content-disposition")
+    let filename = pageCount > 1 ? "converted-images.zip" : "converted-image.png"
+    
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1].replace(/['"]/g, '')
+      }
+    }
+    
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    setDownloadComplete(true)
+    setTimeout(() => setDownloadComplete(false), 3000)
+  } catch (error) {
+    console.error("Download error:", error)
+    alert("Failed to download file. Please try again.")
+  } finally {
+    setDownloading(false)
+  }
+}
+
+  const handleConvertAnother = () => {
+    sessionStorage.removeItem("pdfToPngResult")
+    sessionStorage.removeItem("pdfToPngDownload")
+    router.push("/pdf-to-png")
+  }
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "My PNG Images",
+          text: "Check out my converted PNG images",
+          url: window.location.href,
+        })
+      } catch (err) {
+        console.log("Share failed:", err)
+      }
+    } else {
+      handleCopyLink()
+    }
+  }
+
+  if (!downloadData && !jobId) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="text-center">
+            <div className="relative w-12 h-12 mx-auto mb-4">
+              <div className="absolute inset-0 border-3 border-blue-200 rounded-full"></div>
+              <div className="absolute inset-0 border-3 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
+            <p className="text-slate-600 font-medium text-sm">Loading your images...</p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  const pageCount = downloadData?.totalSelected || downloadData?.pageCount || 1
+
+  return (
+    <Layout title="Download PNG Images - SmallPDF.us" description="Download your converted PNG images">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+        
+        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-body { font-family: 'DM Sans', sans-serif; }
+        
+        @keyframes checkmark-draw {
+          0% { stroke-dashoffset: 24; }
+          100% { stroke-dashoffset: 0; }
+        }
+        @keyframes fade-up {
+          0% { opacity: 0; transform: translateY(16px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .animate-checkmark { animation: checkmark-draw 0.4s ease-out 0.3s forwards; stroke-dasharray: 24; stroke-dashoffset: 24; }
+        .animate-fade-up { animation: fade-up 0.5s ease-out forwards; }
+        .animate-fade-up-delay-1 { animation: fade-up 0.5s ease-out 0.1s forwards; opacity: 0; }
+        .animate-fade-up-delay-2 { animation: fade-up 0.5s ease-out 0.2s forwards; opacity: 0; }
+        .btn-shimmer {
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          background-size: 200% 100%;
+          animation: shimmer 2s infinite;
+        }
+        .glass-card {
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(20px);
+        }
+      `}</style>
+
+      {/* Success Header */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+              backgroundSize: "24px 24px",
+            }}
+          ></div>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className={`relative flex-shrink-0 ${mounted ? "animate-fade-up" : ""}`}>
+                <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                  <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M5 13l4 4L19 7"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="animate-checkmark"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className={`${mounted ? "animate-fade-up-delay-1" : "opacity-0"}`}>
+                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  PNG Images Ready!
+                </h1>
+                <p className="font-body text-blue-100 text-sm">
+                  {pageCount} page{pageCount !== 1 ? "s" : ""} converted to PNG format
+                </p>
+              </div>
+            </div>
+
+            <div className={`flex items-center gap-2 ${mounted ? "animate-fade-up-delay-2" : "opacity-0"}`}>
+              <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-white">
+                <Timer className="w-3.5 h-3.5" />
+                <span>{formatTime(countdown)}</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-white">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Encrypted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="bg-blue-50/50 py-8 sm:py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+            {/* Main Download Section */}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="glass-card rounded-2xl border border-blue-200/60 shadow-xl overflow-hidden">
+                {/* File Header */}
+                <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-5">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <ImageIcon className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-display text-lg sm:text-xl font-semibold text-white truncate">
+                        {pageCount > 1 ? "converted-images.zip" : "converted-image.png"}
+                      </h2>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                          Ready
+                        </span>
+                        <span className="text-blue-200 text-sm">
+                          {pageCount} PNG image{pageCount !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Download Actions */}
+                <div className="p-6 sm:p-8">
+                  <button
+                    onClick={handleDownload}
+                    disabled={downloading}
+                    className="group relative w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 sm:py-5 px-6 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:from-blue-500 hover:to-indigo-500 overflow-hidden"
+                  >
+                    <div className="absolute inset-0 btn-shimmer"></div>
+                    {downloading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span className="relative">Preparing Download...</span>
+                      </>
+                    ) : downloadComplete ? (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="relative">Downloaded Successfully!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5 group-hover:animate-bounce" />
+                        <span className="relative">Download PNG Images</span>
+                        <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                      </>
+                    )}
+                  </button>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-3 mt-6">
+                    <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="font-display text-2xl sm:text-3xl font-bold text-slate-900">{pageCount}</div>
+                      <div className="font-body text-xs text-slate-500 mt-1">Images</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="font-display text-2xl sm:text-3xl font-bold text-blue-600">150</div>
+                      <div className="font-body text-xs text-slate-500 mt-1">DPI</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <div className="font-display text-2xl sm:text-3xl font-bold text-slate-900">PNG</div>
+                      <div className="font-body text-xs text-slate-500 mt-1">Format</div>
+                    </div>
+                  </div>
+
+                  {/* Secondary Actions */}
+                  <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
+                    <button
+                      onClick={handleConvertAnother}
+                      className="flex-1 py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Convert Another PDF</span>
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleCopyLink}
+                      className="py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
+                    >
+                      {copied ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Features Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="glass-card p-5 rounded-xl border border-blue-200/60">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+                    <ImageIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-display font-semibold text-slate-900 mb-1">Crystal Clear</h3>
+                  <p className="font-body text-sm text-slate-600">150 DPI high-quality output</p>
+                </div>
+
+                <div className="glass-card p-5 rounded-xl border border-blue-200/60">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-display font-semibold text-slate-900 mb-1">Instant Ready</h3>
+                  <p className="font-body text-sm text-slate-600">Download immediately</p>
+                </div>
+
+                <div className="glass-card p-5 rounded-xl border border-blue-200/60">
+                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-display font-semibold text-slate-900 mb-1">Secure & Private</h3>
+                  <p className="font-body text-sm text-slate-600">Auto-deleted in 1 hour</p>
+                </div>
+
+                <div className="glass-card p-5 rounded-xl border border-blue-200/60">
+                  <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="font-display font-semibold text-slate-900 mb-1">Transparency</h3>
+                  <p className="font-body text-sm text-slate-600">PNG with alpha support</p>
+                </div>
+              </div>
+
+              {/* More Tools */}
+              <div className="glass-card rounded-2xl border border-blue-200/60 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100 bg-blue-50/50">
+                  <h3 className="font-display text-lg font-semibold text-slate-900">Explore More PDF Tools</h3>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                      {
+                        name: "PNG to PDF",
+                        desc: "Convert images back",
+                        href: "/png-to-pdf",
+                        color: "from-blue-500 to-indigo-600",
+                      },
+                      {
+                        name: "Merge PDF",
+                        desc: "Combine documents",
+                        href: "/merge-pdf",
+                        color: "from-indigo-500 to-purple-600",
+                      },
+                      {
+                        name: "Compress PDF",
+                        desc: "Reduce file size",
+                        href: "/compress-pdf",
+                        color: "from-cyan-500 to-blue-600",
+                      },
+                    ].map((tool) => (
+                      <a
+                        key={tool.name}
+                        href={tool.href}
+                        className="group p-4 rounded-xl border border-blue-200/80 hover:border-blue-300 hover:shadow-lg transition-all duration-300 bg-white"
+                      >
+                        <div
+                          className={`w-10 h-10 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform duration-300`}
+                        >
+                          <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <h4 className="font-display font-semibold text-slate-900 mb-0.5">{tool.name}</h4>
+                        <p className="font-body text-sm text-slate-500 mb-2">{tool.desc}</p>
+                        <span className="inline-flex items-center text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">
+                          Try now
+                          <ChevronRight className="w-4 h-4 ml-0.5 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Summary */}
+              <div className="glass-card rounded-2xl border border-blue-200/60 overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 bg-blue-50/50">
+                  <h3 className="font-display text-base font-semibold text-slate-900">Conversion Summary</h3>
+                </div>
+                <div className="p-5 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-body text-sm text-slate-600">Images Created</span>
+                    <span className="font-display font-semibold text-slate-900">{pageCount}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-body text-sm text-slate-600">Output Format</span>
+                    <span className="font-display font-semibold text-blue-600">PNG</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-body text-sm text-slate-600">Resolution</span>
+                    <span className="font-display font-semibold text-slate-900">150 DPI</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-body text-sm text-slate-600">Quality</span>
+                    <span className="font-display font-semibold text-emerald-600">Lossless</span>
+                  </div>
+                  <div className="pt-3 border-t border-slate-100">
+                    <div className="flex justify-between items-center">
+                      <span className="font-body text-sm text-slate-600">Download</span>
+                      <span className="font-display font-semibold text-slate-900">
+                        {pageCount > 1 ? "ZIP Archive" : "Single PNG"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security */}
+              <div className="glass-card rounded-2xl border border-blue-200/60 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <h3 className="font-display text-base font-semibold text-slate-900">Your Privacy Matters</h3>
+                </div>
+                <p className="font-body text-sm text-slate-600 leading-relaxed">
+                  All files are encrypted with 256-bit SSL and automatically deleted within 1 hour. We never access or
+                  store your document content.
+                </p>
+              </div>
+
+              {/* Ad Space */}
+              <div className="glass-card rounded-2xl border border-blue-200/60 p-5">
+                <p className="font-body text-[10px] font-medium text-slate-400 uppercase tracking-wider mb-3 text-center">
+                  Advertisement
+                </p>
+                <div className="bg-blue-50 rounded-lg border border-blue-200 flex items-center justify-center aspect-[4/3]">
+                  <div className="text-center">
+                    <p className="text-xs text-slate-400">Ad Space</p>
+                    <p className="text-lg font-semibold text-slate-300">300x250</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  )
+}

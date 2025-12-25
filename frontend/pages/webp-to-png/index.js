@@ -1,0 +1,544 @@
+"use client"
+
+import { useState, useCallback } from "react"
+import { useRouter } from "next/router"
+import Layout from "../../components/Layout"
+import { Upload, ImageIcon, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, FileImage } from "lucide-react"
+import Head from "next/head"
+
+export default function WebpToPng() {
+  const router = useRouter()
+  const [dragActive, setDragActive] = useState(false)
+  const [error, setError] = useState("")
+  const [openFaq, setOpenFaq] = useState(null)
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const handleDrag = useCallback((e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }, [])
+
+  const validateFile = (file) => {
+    const validTypes = ["image/webp"]
+    const maxSize = 50 * 1024 * 1024
+
+    if (!validTypes.includes(file.type) && !file.name.toLowerCase().endsWith(".webp")) {
+      return { valid: false, error: "Please select WEBP image files only" }
+    }
+
+    if (file.size > maxSize) {
+      return { valid: false, error: "Each image must be smaller than 50MB" }
+    }
+
+    return { valid: true }
+  }
+
+  const processFiles = async (newFiles) => {
+    if (newFiles.length === 0) {
+      setError("Please select at least one WEBP file")
+      return
+    }
+
+    if (newFiles.length > 20) {
+      setError("You can convert up to 20 images at once")
+      return
+    }
+
+    const validFiles = []
+    let hasError = false
+
+    for (const file of newFiles) {
+      const validation = validateFile(file)
+      if (validation.valid) {
+        validFiles.push({
+          file,
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          name: file.name,
+          size: file.size,
+        })
+      } else {
+        setError(validation.error)
+        hasError = true
+        break
+      }
+    }
+
+    if (!hasError && validFiles.length > 0) {
+      setIsProcessing(true)
+      setError("")
+
+      try {
+        const fileDataArray = await Promise.all(
+          validFiles.map(async (f) => {
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader()
+              reader.onload = (e) => {
+                resolve({
+                  id: f.id,
+                  name: f.name,
+                  size: f.size,
+                  type: f.file.type,
+                  data: e.target.result,
+                })
+              }
+              reader.onerror = reject
+              reader.readAsDataURL(f.file)
+            })
+          }),
+        )
+
+        sessionStorage.setItem("uploadedWebpFiles", JSON.stringify(fileDataArray))
+
+        setTimeout(() => {
+          router.push("/webp-to-png/preview")
+        }, 600)
+      } catch (err) {
+        console.error("Error processing files:", err)
+        setError("Something went wrong processing your images. Please try again.")
+        setIsProcessing(false)
+      }
+    }
+  }
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    setError("")
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(Array.from(e.dataTransfer.files))
+    }
+  }, [])
+
+  const handleFileChange = (e) => {
+    setError("")
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(Array.from(e.target.files))
+    }
+    e.target.value = ""
+  }
+
+  const handleButtonClick = () => {
+    document.getElementById("file-upload").click()
+  }
+
+  const toggleFaq = (index) => {
+    setOpenFaq(openFaq === index ? null : index)
+  }
+
+  const faqs = [
+    {
+      question: "Why convert WEBP to PNG?",
+      answer:
+        "PNG works everywhere - every browser, every app, every device. WEBP is great for compression but not everything supports it yet. Converting to PNG means your images will work no matter where you use them.",
+    },
+    {
+      question: "Will my images still look good?",
+      answer:
+        "Yep, they'll look exactly the same. PNG is lossless, which means we don't throw away any quality during conversion. What you upload is what you get, pixel for pixel.",
+    },
+    {
+      question: "Can I convert multiple files at once?",
+      answer:
+        "Absolutely. Upload up to 20 WEBP images and we'll convert them all together. Way faster than doing them one by one.",
+    },
+    {
+      question: "How big can my files be?",
+      answer:
+        "Each WEBP file can be up to 50MB. That's plenty for even high-resolution photos and detailed graphics.",
+    },
+    {
+      question: "Is it safe to upload my images here?",
+      answer:
+        "Yes, totally safe. Everything gets encrypted when you upload. We process your images on secure servers and delete them automatically after an hour. We never look at your images or keep them around.",
+    },
+  ]
+
+  return (
+    <>
+      <Head>
+        <title>Convert WEBP to PNG Online Free | WEBP to PNG Converter - SmallPDF.us</title>
+        <meta
+          name="description"
+          content="Convert WEBP images to PNG format online for free. Fast, secure WEBP to PNG converter with batch processing. No registration required. Preserve image quality instantly."
+        />
+        <meta
+          name="keywords"
+          content="webp to png, convert webp to png, webp to png converter, webp converter online, change webp to png, webp image converter, free webp to png"
+        />
+        <link rel="canonical" href="https://smallpdf.us/webp-to-png" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://smallpdf.us/webp-to-png" />
+        <meta property="og:title" content="Convert WEBP to PNG Online Free | WEBP to PNG Converter - SmallPDF.us" />
+        <meta
+          property="og:description"
+          content="Convert WEBP images to PNG format instantly. Free, fast, and secure conversion with batch processing support."
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "WEBP to PNG Converter - SmallPDF.us",
+              url: "https://smallpdf.us/webp-to-png",
+              description: "Convert WEBP images to PNG format online for free",
+              applicationCategory: "MultimediaApplication",
+              operatingSystem: "Any",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.7",
+                ratingCount: "18432",
+              },
+            }),
+          }}
+        />
+      </Head>
+
+      <Layout
+        title="WEBP to PNG - Convert WEBP Images Online"
+        description="Convert WEBP images to PNG format instantly."
+      >
+        <style jsx global>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+          .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+          }
+          .font-body {
+            font-family: 'DM Sans', sans-serif;
+          }
+          @keyframes blob {
+            0%,
+            100% {
+              transform: translate(0, 0) scale(1);
+            }
+            33% {
+              transform: translate(20px, -30px) scale(1.05);
+            }
+            66% {
+              transform: translate(-15px, 15px) scale(0.95);
+            }
+          }
+          .animate-blob {
+            animation: blob 8s ease-in-out infinite;
+          }
+          .animation-delay-2000 {
+            animation-delay: 2s;
+          }
+          @keyframes loading-bar {
+            0% {
+              width: 0%;
+            }
+            50% {
+              width: 70%;
+            }
+            100% {
+              width: 100%;
+            }
+          }
+          .animate-loading-bar {
+            animation: loading-bar 2s ease-in-out infinite;
+          }
+          @keyframes bounce-slow {
+            0%,
+            100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-4px);
+            }
+          }
+          .animate-bounce-slow {
+            animation: bounce-slow 2s ease-in-out infinite;
+          }
+        `}</style>
+
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-white via-teal-50 to-emerald-50 border-b border-teal-200">
+          <div className="max-w-4xl mx-auto px-4 pt-4 pb-4 text-center">
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-3">
+              Convert WEBP to PNG <span className="text-teal-600">Online Free</span>
+            </h1>
+
+            <p className="font-body text-base text-slate-600 max-w-2xl mx-auto mb-2">
+              Turn WEBP images into universally compatible PNG files. Fast batch conversion with{" "}
+              <strong>SmallPDF.us</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* Upload Section */}
+        <div className="bg-gradient-to-br from-teal-50 via-emerald-50 to-teal-50 py-8 px-4 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute -bottom-8 right-20 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+          <div className="max-w-2xl mx-auto relative z-10">
+            <div className="bg-white rounded-2xl shadow-xl border border-teal-200 p-6">
+              {isProcessing ? (
+                <div className="py-10 text-center">
+                  <div className="relative w-16 h-16 mx-auto mb-5">
+                    <div className="absolute inset-0 border-4 border-teal-200 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-t-teal-600 border-r-teal-600 rounded-full animate-spin"></div>
+                    <FileImage className="absolute inset-0 m-auto w-6 h-6 text-teal-600" />
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-slate-900 mb-2">Loading Your Images</h3>
+                  <p className="font-body text-sm text-slate-600">Setting everything up...</p>
+                  <div className="mt-5 max-w-xs mx-auto">
+                    <div className="bg-teal-200 rounded-full h-2 overflow-hidden">
+                      <div className="bg-teal-600 h-full rounded-full animate-loading-bar"></div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Upload Area */}
+                  <div
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                    className={`relative rounded-xl transition-all duration-300 ${
+                      dragActive
+                        ? "border-4 border-teal-500 bg-teal-50 scale-102 shadow-lg"
+                        : "border-3 border-dashed border-teal-300 hover:border-teal-400 hover:bg-teal-50 hover:shadow-md"
+                    }`}
+                    style={{ borderWidth: dragActive ? "4px" : "3px" }}
+                  >
+                    <input
+                      type="file"
+                      id="file-upload"
+                      className="hidden"
+                      accept=".webp,image/webp"
+                      multiple
+                      onChange={handleFileChange}
+                    />
+
+                    <div className="p-10 text-center">
+                      <div className="mb-3">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-600 rounded-2xl mb-3 shadow-xl transform hover:scale-110 transition-transform duration-300">
+                          <FileImage className="w-8 h-8 text-white animate-bounce-slow" />
+                        </div>
+                      </div>
+
+                      <h3 className="font-display text-xl font-bold text-slate-900 mb-2">
+                        {dragActive ? "Drop Your WEBP Files Here!" : "Select WEBP Images"}
+                      </h3>
+                      <p className="font-body text-sm text-slate-500 mb-4">
+                        Upload WEBP images and we'll convert them to PNG instantly
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={handleButtonClick}
+                        className="inline-flex items-center gap-2 bg-teal-600 text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      >
+                        <Upload className="w-5 h-5" />
+                        <span>Choose WEBP Files</span>
+                      </button>
+
+                      <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-500">
+                        <div className="flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                          <span>WEBP Only</span>
+                        </div>
+                        <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
+                        <div className="flex items-center gap-1">
+                          <Shield className="w-3.5 h-3.5 text-slate-600" />
+                          <span>Secure</span>
+                        </div>
+                        <div className="w-1 h-1 bg-slate-400 rounded-full"></div>
+                        <div className="flex items-center gap-1">
+                          <Zap className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Fast</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {error && (
+                <div className="mt-4 bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="font-body text-sm text-red-700 font-medium">{error}</p>
+                </div>
+              )}
+
+              {!isProcessing && (
+                <p className="text-center font-body text-sm text-slate-600 mt-5">
+                  Up to <span className="font-bold text-teal-600">50MB</span> per file |{" "}
+                  <span className="font-bold text-teal-600">20 files</span> maximum
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div className="bg-white py-12 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="font-display text-3xl font-bold text-slate-900 mb-3">
+                Why Convert WEBP to PNG?
+              </h2>
+              <p className="font-body text-slate-600 max-w-3xl mx-auto">
+                PNG works everywhere. It's the universal standard that every device and app understands.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z",
+                  title: "Perfect Quality",
+                  desc: "Every pixel stays exactly the same. PNG is lossless, so your images keep all their detail and sharpness.",
+                },
+                {
+                  icon: "M13 10V3L4 14h7v7l9-11h-7z",
+                  title: "Batch Convert",
+                  desc: "Upload 20 WEBP files at once. We'll convert them all together and give you everything in one download.",
+                },
+                {
+                  icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+                  title: "Your Images Stay Safe",
+                  desc: "Everything's encrypted during upload. We delete your files after an hour automatically. Never saved, never shared.",
+                },
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className="bg-gradient-to-br from-white to-teal-50 p-6 rounded-2xl border border-teal-200 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
+                    </svg>
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
+                  <p className="font-body text-sm text-slate-600 leading-relaxed">{feature.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* How It Works */}
+        <div className="bg-gradient-to-br from-teal-50 to-emerald-50 py-12 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="font-display text-3xl font-bold text-slate-900 mb-3">Three Simple Steps</h2>
+              <p className="font-body text-slate-600">Convert your WEBP images in less than a minute</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  step: "1",
+                  title: "Upload WEBP Files",
+                  desc: "Select your WEBP images. You can pick up to 20 files at once.",
+                  color: "bg-teal-600",
+                },
+                {
+                  step: "2",
+                  title: "Preview & Select",
+                  desc: "Look through your images. Remove any you don't want to convert.",
+                  color: "bg-emerald-600",
+                },
+                {
+                  step: "3",
+                  title: "Download PNG Files",
+                  desc: "Get your converted PNG images instantly. One file or a zip with everything.",
+                  color: "bg-teal-700",
+                },
+              ].map((item) => (
+                <div key={item.step} className="text-center">
+                  <div
+                    className={`w-14 h-14 ${item.color} text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 shadow-lg`}
+                  >
+                    {item.step}
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
+                  <p className="font-body text-sm text-slate-600">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="bg-white py-12 px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="font-display text-3xl font-bold text-slate-900 mb-3">Common Questions</h2>
+              <p className="font-body text-slate-600">Quick answers about WEBP to PNG conversion</p>
+            </div>
+
+            <div className="space-y-3">
+              {faqs.map((faq, index) => (
+                <div
+                  key={index}
+                  className="border border-teal-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  <button
+                    onClick={() => toggleFaq(index)}
+                    className="w-full px-6 py-4 text-left flex items-center justify-between bg-white hover:bg-teal-50 transition-colors"
+                  >
+                    <span className="font-display font-semibold text-slate-900 pr-4">{faq.question}</span>
+                    <ChevronDown
+                      className={`w-5 h-5 text-teal-600 flex-shrink-0 transition-transform duration-300 ${
+                        openFaq === index ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {openFaq === index && (
+                    <div className="px-6 pb-4">
+                      <p className="font-body text-slate-600 leading-relaxed">{faq.answer}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Content */}
+        <div className="bg-teal-50 py-12 px-4 border-t border-teal-200">
+          <div className="max-w-4xl mx-auto">
+            <div className="prose prose-slate max-w-none">
+              <h2 className="font-display text-2xl font-bold text-slate-900 mb-4">
+                When You Need PNG Instead of WEBP
+              </h2>
+              <p className="font-body text-slate-700 mb-4">
+                WEBP is Google's format and it's great for making files smaller. But not everything supports it yet.
+                Older browsers, some apps, and certain devices can't open WEBP files. PNG, on the other hand, works
+                absolutely everywhere - always has, always will.
+              </p>
+              <p className="font-body text-slate-700 mb-4">
+                Converting to PNG means your images will open on any device, in any app, on any website. No worrying
+                about compatibility. No wondering if someone can see your images. They just work.
+              </p>
+              <h3 className="font-display text-xl font-bold text-slate-900 mb-3 mt-6">Perfect Quality, Every Time</h3>
+              <p className="font-body text-slate-700">
+                PNG doesn't throw away any image data. Every pixel, every color, every detail stays exactly the same.
+                It's lossless compression, which means you get the universal compatibility of PNG without sacrificing
+                any of the quality from your original WEBP files.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    </>
+  )
+}
