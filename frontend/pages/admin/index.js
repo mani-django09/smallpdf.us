@@ -46,7 +46,7 @@ export default function AdminDashboard() {
     setLoading(true)
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      const response = await fetch("http://localhost:5011/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
         setError(data.error || "Login failed")
       }
     } catch (err) {
-      setError("Failed to connect to server. Make sure the backend is running on port 5000.")
+      setError("Failed to connect to server. Make sure the backend is running on port 5011.")
     } finally {
       setLoading(false)
     }
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
   const fetchDashboardData = async (authToken) => {
     try {
       // Fetch stats
-      const statsResponse = await fetch("http://localhost:5000/api/admin/stats", {
+      const statsResponse = await fetch("http://localhost:5011/api/admin/stats", {
         headers: { Authorization: `Bearer ${authToken}` },
       })
       
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
         ...filters,
       })
 
-      const response = await fetch(`http://localhost:5000/api/admin/activity?${queryParams}`, {
+      const response = await fetch(`http://localhost:5011/api/admin/activity?${queryParams}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       })
 

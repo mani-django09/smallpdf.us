@@ -76,7 +76,7 @@ export default function PreviewPDFToJPG() {
       formData.append("file", file)
       formData.append("quality", quality)
 
-      const convertResponse = await fetch("http://localhost:5000/api/pdf-to-jpg", {
+      const convertResponse = await fetch("http://localhost:5011/api/pdf-to-jpg", {
         method: "POST",
         body: formData,
       })

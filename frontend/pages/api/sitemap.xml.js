@@ -1,10 +1,9 @@
 // pages/api/sitemap.xml.js
-// Dynamic sitemap generator that includes blog posts
 
 export default async function handler(req, res) {
   try {
     // Fetch blog posts from your API
-    const blogResponse = await fetch('http://localhost:5000/api/blog/posts?limit=100')
+    const blogResponse = await fetch('http://localhost:5011/api/blog/posts?limit=100')
     const blogData = await blogResponse.json()
     const blogPosts = blogData.success ? blogData.posts : []
 

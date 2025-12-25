@@ -124,7 +124,7 @@ export default function PreviewMergePDF() {
         formData.append("files", file)
       }
 
-      const mergeResponse = await fetch("http://localhost:5000/api/merge-pdf", {
+      const mergeResponse = await fetch("http://localhost:5011/api/merge-pdf", {
         method: "POST",
         body: formData,
       })

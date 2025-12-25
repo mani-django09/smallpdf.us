@@ -61,7 +61,7 @@ export default function DownloadSplitPdf() {
     setDownloading(true)
 
     try {
-      const downloadUrl = `http://localhost:5000/api/download-split/${jobId}`
+      const downloadUrl = `http://localhost:5011/api/download-split/${jobId}`
       const response = await fetch(downloadUrl)
 
       if (!response.ok) {

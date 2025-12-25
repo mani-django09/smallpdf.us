@@ -84,7 +84,7 @@ export default function PreviewCompressImage() {
         formData.append("files", file)
       }
 
-      const compressResponse = await fetch("http://localhost:5000/api/compress-image", {
+      const compressResponse = await fetch("http://localhost:5011/api/compress-image", {
         method: "POST",
         body: formData,
       })

@@ -32,7 +32,7 @@ export default function BlogPost() {
   const fetchPost = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`http://localhost:5000/api/blog/post/${slug}`)
+      const response = await fetch(`http://localhost:5011/api/blog/post/${slug}`)
       const data = await response.json()
 
       if (data.success) {

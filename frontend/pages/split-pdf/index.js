@@ -51,7 +51,7 @@ export default function SplitPdf() {
       const formData = new FormData()
       formData.append("file", uploadedFile)
       
-      const response = await fetch("http://localhost:5000/api/analyze-pdf", {
+      const response = await fetch("http://localhost:5011/api/analyze-pdf", {
         method: "POST",
         body: formData,
       })
@@ -103,7 +103,7 @@ export default function SplitPdf() {
         const pageObjects = analysis.thumbnails && analysis.thumbnails.length > 0
           ? analysis.thumbnails.map((thumb, index) => ({
               pageNumber: index + 1,
-              thumbnail: thumb.url ? `http://localhost:5000${thumb.url}` : null,
+              thumbnail: thumb.url ? `http://localhost:5011${thumb.url}` : null,
             }))
           : Array.from({ length: analysis.pageCount }, (_, i) => ({
               pageNumber: i + 1,

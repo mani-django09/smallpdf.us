@@ -30,7 +30,7 @@ export default function Blog() {
       if (selectedCategory) params.append("category", selectedCategory)
       if (selectedTag) params.append("tag", selectedTag)
 
-      const response = await fetch(`http://localhost:5000/api/blog/posts?${params}`)
+      const response = await fetch(`http://localhost:5011/api/blog/posts?${params}`)
       const data = await response.json()
 
       if (data.success) {
@@ -51,7 +51,7 @@ export default function Blog() {
     if (!searchQuery.trim()) return
 
     try {
-      const response = await fetch(`http://localhost:5000/api/blog/search?q=${encodeURIComponent(searchQuery)}`)
+      const response = await fetch(`http://localhost:5011/api/blog/search?q=${encodeURIComponent(searchQuery)}`)
       const data = await response.json()
 
       if (data.success) {

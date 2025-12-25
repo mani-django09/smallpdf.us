@@ -69,7 +69,7 @@ export default function DownloadCompressPdf() {
     setDownloading(true)
 
     try {
-      const downloadUrl = `http://localhost:5000/api/download-compressed/${jobId}`
+      const downloadUrl = `http://localhost:5011/api/download-compressed/${jobId}`
       const response = await fetch(downloadUrl)
       if (!response.ok) throw new Error("Download failed")
 

@@ -65,7 +65,7 @@ export default function PreviewSplitPdf() {
       formData.append("file", file)
       formData.append("pages", JSON.stringify(fileData.selectedPages))
 
-      const splitResponse = await fetch("http://localhost:5000/api/split-pdf", {
+      const splitResponse = await fetch("http://localhost:5011/api/split-pdf", {
         method: "POST",
         body: formData,
       })

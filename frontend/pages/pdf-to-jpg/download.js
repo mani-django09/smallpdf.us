@@ -64,7 +64,7 @@ export default function DownloadJPGPage() {
     setDownloading(true)
 
     try {
-      const downloadUrl = `http://localhost:5000${file}`
+      const downloadUrl = `http://localhost:5011${file}`
       const response = await fetch(downloadUrl)
       if (!response.ok) throw new Error("Download failed")
 

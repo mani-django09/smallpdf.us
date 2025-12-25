@@ -66,7 +66,7 @@ export default function PDFtoPNG() {
       const formData = new FormData()
       formData.append("pdf", newFile)
 
-      const response = await fetch("http://localhost:5000/api/pdf-to-png", {
+      const response = await fetch("http://localhost:5011/api/pdf-to-png", {
         method: "POST",
         body: formData,
       })

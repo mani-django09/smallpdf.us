@@ -67,7 +67,7 @@ export default function AdminBlog() {
 
   const fetchPosts = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5000/api/blog/admin/posts", {
+      const response = await fetch("http://localhost:5011/api/blog/admin/posts", {
         headers: { Authorization: `Bearer ${authToken}` },
       })
       const data = await response.json()
@@ -118,8 +118,8 @@ export default function AdminBlog() {
       }
 
       const url = formData.id
-        ? `http://localhost:5000/api/blog/update/${formData.id}`
-        : "http://localhost:5000/api/blog/create"
+        ? `http://localhost:5011/api/blog/update/${formData.id}`
+        : "http://localhost:5011/api/blog/create"
       
       const method = formData.id ? "PUT" : "POST"
 
@@ -165,7 +165,7 @@ export default function AdminBlog() {
     if (!confirm("Are you sure you want to delete this post?")) return
 
     try {
-      const response = await fetch(`http://localhost:5000/api/blog/delete/${id}`, {
+      const response = await fetch(`http://localhost:5011/api/blog/delete/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })

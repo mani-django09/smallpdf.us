@@ -60,7 +60,7 @@ export default function PreviewWordToPDF() {
       const formData = new FormData()
       formData.append("file", file)
 
-      const convertResponse = await fetch("http://localhost:5000/api/word-to-pdf", {
+      const convertResponse = await fetch("http://localhost:5011/api/word-to-pdf", {
         method: "POST",
         body: formData,
       })

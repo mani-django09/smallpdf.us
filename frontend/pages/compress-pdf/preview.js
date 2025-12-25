@@ -93,7 +93,7 @@ export default function PreviewCompressPdf() {
       }
       formData.append("level", compressionLevel)
 
-      const compressResponse = await fetch("http://localhost:5000/api/compress-pdf-batch", {
+      const compressResponse = await fetch("http://localhost:5011/api/compress-pdf-batch", {
         method: "POST",
         body: formData,
       })
