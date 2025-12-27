@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../components/Layout"
+import SEOHead from "../components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Zap, Shield, Star, ChevronDown, Sparkles, Home } from "lucide-react"
-import Head from "next/head"
 
 export default function WordToPDF() {
   const router = useRouter()
@@ -135,53 +135,83 @@ export default function WordToPDF() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Word to PDF Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/word-to-pdf",
+        "description": "Convert Word documents to PDF format online for free with perfect formatting preservation",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.5",
+          "ratingCount": "30892"
+        },
+        "featureList": [
+          "Supports DOC and DOCX formats",
+          "Up to 100MB file size",
+          "Perfect formatting preservation",
+          "Maintains fonts and images",
+          "Secure encryption",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert Word to PDF",
+        "description": "Step-by-step guide to converting Word documents to PDF format",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload Word Document",
+            "text": "Upload your DOC or DOCX file. Both legacy and modern Word formats are supported up to 100MB.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Automatic Conversion",
+            "text": "Our system preserves all formatting, fonts, images, and layout while converting to PDF format.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download PDF",
+            "text": "Download your professional PDF file that looks perfect on any device or platform.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Word to PDF Converter - Transform Word Docs into PDF Format | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert Word documents to professional PDF files instantly. Preserve formatting, fonts, and images perfectly. Free, secure, and no registration required."
-        />
-        <meta
-          name="keywords"
-          content="word to pdf, convert word to pdf, docx to pdf, doc to pdf, word converter, pdf converter, free converter"
-        />
-        <link rel="canonical" href="https://smallpdf.us/word-to-pdf" />
-        
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/word-to-pdf" />
-        <meta property="og:title" content="Word to PDF Converter - Transform Word Docs into PDF Format" />
-        <meta
-          property="og:description"
-          content="Convert Word files to PDF format while keeping your original formatting intact. Fast, secure, and completely free."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Word to PDF Converter - SmallPDF.us",
-              url: "https://smallpdf.us/word-to-pdf",
-              description: "Convert Word documents to PDF format online for free with perfect formatting preservation",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD"
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.5",
-                ratingCount: "30892"
-              }
-            })
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Word to PDF Converter - Transform Word Docs into PDF Format | SmallPDF.us"
+        description="Convert Word documents to professional PDF files instantly. Preserve formatting, fonts, and images perfectly. Free, secure, and no registration required."
+        canonical="https://smallpdf.us/word-to-pdf"
+        ogImage="/og-word-to-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="Word to PDF - Transform Word Documents into PDF Format"
@@ -239,7 +269,6 @@ export default function WordToPDF() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

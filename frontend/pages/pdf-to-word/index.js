@@ -3,8 +3,8 @@
 import { useState, useCallback, useEffect } from "react"
 import { useRouter } from "next/router"
 import Layout from "@/components/Layout"
+import SEOHead from "@/components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, Trash2, FileType, Eye, X } from "lucide-react"
-import Head from "next/head"
 
 export default function PdfToWord() {
   const router = useRouter()
@@ -16,13 +16,26 @@ export default function PdfToWord() {
   const [previewModal, setPreviewModal] = useState({ open: false, file: null, pages: [] })
   const [pdfjs, setPdfjs] = useState(null)
 
-  // Load PDF.js dynamically on client side only
+  // Load PDF.js with proper worker configuration
   useEffect(() => {
     const loadPdfjs = async () => {
       try {
-        const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs")
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
-        setPdfjs(pdfjsLib)
+        if (typeof window !== 'undefined') {
+          const script = document.createElement('script')
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+          script.onload = () => {
+            if (window.pdfjsLib) {
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc = 
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+              setPdfjs(window.pdfjsLib)
+              console.log('PDF.js loaded successfully')
+            }
+          }
+          script.onerror = (err) => {
+            console.error('Failed to load PDF.js from CDN:', err)
+          }
+          document.head.appendChild(script)
+        }
       } catch (err) {
         console.error("Failed to load PDF.js:", err)
       }
@@ -55,15 +68,16 @@ export default function PdfToWord() {
     return { valid: true }
   }
 
-  // Generate PDF thumbnail
   const generateThumbnail = async (file, fileId) => {
     if (!pdfjs) {
+      console.log('PDF.js not loaded yet')
       return { thumbnail: null, pageCount: 1 }
     }
     
     try {
       const arrayBuffer = await file.arrayBuffer()
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+      const loadingTask = pdfjs.getDocument({ data: arrayBuffer })
+      const pdf = await loadingTask.promise
       const page = await pdf.getPage(1)
       
       const scale = 0.5
@@ -147,13 +161,16 @@ export default function PdfToWord() {
     setFiles((prev) => prev.filter((f) => f.id !== id))
   }
 
-  // Preview PDF pages
   const openPreview = async (fileData) => {
-    if (!pdfjs) return
+    if (!pdfjs) {
+      setError("PDF preview is still loading. Please wait a moment and try again.")
+      return
+    }
     
     try {
       const arrayBuffer = await fileData.file.arrayBuffer()
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+      const loadingTask = pdfjs.getDocument({ data: arrayBuffer })
+      const pdf = await loadingTask.promise
       const pages = []
       
       const maxPages = Math.min(pdf.numPages, 5)
@@ -178,6 +195,7 @@ export default function PdfToWord() {
       setPreviewModal({ open: true, file: fileData, pages, totalPages: pdf.numPages })
     } catch (err) {
       console.error("Error loading preview:", err)
+      setError("Unable to preview this PDF. It may be corrupted or password-protected.")
     }
   }
 
@@ -255,53 +273,83 @@ export default function PdfToWord() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PDF to Word Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/pdf-to-word",
+        "description": "Transform PDF files into fully editable Word documents online for free",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "25000",
+        },
+        "featureList": [
+          "Convert up to 10 PDF files",
+          "Intelligent layout recognition",
+          "Preserves formatting and images",
+          "Batch processing support",
+          "Fully editable output",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert PDF to Word",
+        "description": "Step-by-step guide to converting PDF documents to editable Word format",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PDF Documents",
+            "text": "Select one or more PDF files from your device. You can upload up to 10 documents at once, each up to 50MB.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Automatic Processing",
+            "text": "Our system analyzes your PDF structure, identifying text blocks, images, and formatting to reconstruct in Word format.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download Word Files",
+            "text": "Download your fully editable Word documents. Open them in Microsoft Word, Google Docs, or any word processor.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>PDF to Word Converter - Transform PDFs into Editable Documents | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Turn your PDF files into fully editable Word documents in seconds. Our intelligent converter preserves layouts, images, and formatting. No signup required - start editing immediately."
-        />
-        <meta
-          name="keywords"
-          content="pdf to word, convert pdf to docx, pdf converter, edit pdf, pdf to word online, free pdf converter, document conversion"
-        />
-        <link rel="canonical" href="https://smallpdf.us/pdf-to-word" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/pdf-to-word" />
-        <meta property="og:title" content="PDF to Word Converter - Transform PDFs into Editable Documents" />
-        <meta
-          property="og:description"
-          content="Convert PDF files to editable Word format while keeping your original formatting intact. Fast, secure, and completely free."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PDF to Word Converter - SmallPDF.us",
-              url: "https://smallpdf.us/pdf-to-word",
-              description: "Transform PDF documents into fully editable Word files online",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "31842",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="PDF to Word Converter - Transform PDFs into Editable Documents | SmallPDF.us"
+        description="Turn your PDF files into fully editable Word documents in seconds. Our intelligent converter preserves layouts, images, and formatting. No signup required - start editing immediately."
+        canonical="https://smallpdf.us/pdf-to-word"
+        ogImage="/og-pdf-to-word.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="PDF to Word - Transform PDFs into Editable Documents"
@@ -420,7 +468,6 @@ export default function PdfToWord() {
                             key={f.id}
                             className="relative group bg-slate-50 border border-slate-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
                           >
-                            {/* Thumbnail */}
                             <div className="aspect-[3/4] bg-white relative overflow-hidden">
                               {f.thumbnail ? (
                                 <img
@@ -434,7 +481,6 @@ export default function PdfToWord() {
                                 </div>
                               )}
                               
-                              {/* Hover overlay */}
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                 <button
                                   onClick={() => openPreview(f)}
@@ -452,13 +498,11 @@ export default function PdfToWord() {
                                 </button>
                               </div>
                               
-                              {/* Page count badge */}
                               <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-full">
                                 {f.pageCount} {f.pageCount === 1 ? "page" : "pages"}
                               </div>
                             </div>
                             
-                            {/* File info */}
                             <div className="p-3">
                               <p className="text-xs font-medium text-slate-900 truncate" title={f.name}>{f.name}</p>
                               <p className="text-xs text-slate-500">{(f.size / 1024 / 1024).toFixed(2)} MB</p>

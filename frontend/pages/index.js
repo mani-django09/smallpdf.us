@@ -2,6 +2,7 @@
 
 import { useState, useEffect, memo } from "react"
 import Layout from "../components/Layout"
+import SEOHead from "../components/SEOHead"
 import { 
   FileText, 
   Merge, 
@@ -10,19 +11,16 @@ import {
   FileImage, 
   ArrowRight, 
   Check, 
-  Sparkles,
   Upload,
   Download,
   Lock,
   Zap,
-  Globe,
-  Star,
   ChevronRight,
   Shield,
   Clock,
   Users,
   ChevronDown,
-  HelpCircle
+  Star
 } from "lucide-react"
 
 // Memoized SVG Illustration Components for Performance
@@ -175,27 +173,27 @@ const tools = [
   { name: "PNG to WebP", shortDesc: "Convert to WebP", href: "/png-to-webp", Icon: FileImage, gradient: "from-lime-500 to-green-500" },
 ]
 
-// FAQ Data
+// FAQ Data - Rewritten to sound more human and natural
 const faqs = [
   {
     question: "Is your website really free to use?",
-    answer: "Yes, it's completely free, no hidden fees, no premium tiers. You can convert, compress, merge, and split as many PDFs as you want without paying a penny. We keep the service free through minimal, non-intrusive advertising that doesn't get in your way. There's no trial period that expires, no features locked behind a paywall, and no surprise charges. This is the full tool, available to everyone, forever."
+    answer: "Absolutely! Everything here is free forever. There are no trial periods, premium plans, or surprise charges lurking around the corner. We believe PDF tools should be accessible to everyone. That's why you can merge, split, compress, and convert as many files as you want without ever reaching for your wallet. We keep the lights on with some minimal ads, but they won't interrupt your work or bombard you with pop-ups."
   },
   {
-    question: "How secure are my files when I upload them in your website?",
-    answer: "Your privacy and security are our top priorities. Every file you upload is protected with 256-bit SSL encryption. This means your documents are encrypted during transfer, so nobody can intercept them. Once your conversion is complete, your files are automatically and permanently deleted from our servers within 2 hours. We never access, read, analyze, or share your documents with anyone. Your files are yours alone, and we treat them with the highest level of confidentiality."
+    question: "How secure are my files when I upload them?",
+    answer: "We take your privacy seriously. When you upload a file, it's immediately encrypted with industry-standard 256-bit SSL protection during transfer. This means nobody can intercept or peek at your documents while they're being processed. Once we finish converting or editing your file, it sits on our server just long enough for you to download it. After two hours maximum, it's permanently deleted. We don't keep copies, we don't analyze content, and we definitely don't share anything with third parties. Your files are yours alone."
   },
   {
     question: "What file formats does this support?",
-    answer: "We support all the major document and image formats you'll need. For documents, you can work with PDF, Word (DOC and DOCX), Excel, and PowerPoint files. For images, we handle JPG, JPEG, PNG, WebP, and more. Whether you need to convert a scanned image into an editable document, compress a large PDF for email, merge multiple files into one, or extract images from a PDF, we've got you covered. Check out our full list of tools above to see everything we offer there's pretty much a tool for every PDF task you can think of."
+    answer: "We've got you covered for pretty much everything you'll need! On the document side, you can work with PDFs, Word files (both DOC and DOCX), Excel spreadsheets, and PowerPoint presentations. For images, we handle JPG, JPEG, PNG, WebP, GIF, and more. Whether you're trying to turn a scanned receipt into a searchable PDF, compress a massive file so you can email it, stitch together multiple documents, or pull images out of a presentation, there's a tool here that'll do the job. Just scroll up to see the complete list of what we offer."
   },
   {
     question: "Do I need to create an account?",
-    answer: "Nope, No account creation, no signup forms, no email verification nothing. Just visit the site, choose your tool, upload your file, and you're done. We designed this to be as simple and hassle-free as possible because we know you just want to get your work done without jumping through hoops. You can use every single feature without ever giving us your email address or any personal information."
+    answer: "Nope, not at all. No registration, no login screens, no password resets, no verification emails cluttering your inbox. We built this to be as simple as possible: you show up, pick a tool, drop in your file, and you're off to the races. We won't ask for your email, phone number, or any other personal details. You get full access to every single feature without jumping through hoops or filling out forms. It's honestly the way web tools should work."
   },
   {
     question: "Can I use this on my phone or tablet?",
-    answer: "Yes! The entire site works beautifully on any device, smartphones, tablets, laptops, and desktop computers. Whether you're on an iPhone, Android, iPad, Windows PC, or Mac, you'll get the same smooth, fast experience. Our website is fully responsive and optimized for touch screens, so everything is easy to tap and navigate on mobile devices. There's no app to download or install just open your browser, visit the site, and start converting. It works perfectly whether you're at your desk or on the go."
+    answer: "You bet! The entire site works seamlessly on any device you throw at it. Whether you're on an iPhone, Android phone, iPad, Surface tablet, MacBook, or Windows desktop, you'll get the same fast, smooth experience. Everything's been designed to work perfectly with touchscreens too, so tapping buttons and dragging files feels natural on mobile devices. There's no separate app to download or install. Just open your browser, visit the site, and start working. It's that straightforward."
   }
 ]
 
@@ -213,364 +211,370 @@ export default function HomePage() {
   }
 
   return (
-    <Layout>
-      {/* Compact Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.015)_1px,transparent_1px)] bg-[size:40px_40px]" />
-        
-        <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-10 sm:py-12 md:py-16">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-            {/* Left Content */}
-            <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-              {/* Badge */}
+    <>
+      <SEOHead />
+      <Layout>
+        {/* Compact Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-orange-50/30">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.015)_1px,transparent_1px)] bg-[size:40px_40px]" />
+          
+          <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-10 sm:py-12 md:py-16">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
+              {/* Left Content */}
+              <div className={`transition-all duration-500 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                {/* Heading */}
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-3 sm:mb-4 leading-tight tracking-tight">
+                  Your complete{" "}
+                  <span className="bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent">
+                    PDF toolkit
+                  </span>
+                  {" "}that's actually free
+                </h1>
 
-              {/* Heading */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 mb-3 sm:mb-4 leading-tight tracking-tight">
-                All-in-one{" "}
-                <span className="bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent">
-                  PDF toolkit
-                </span>
-                {" "}for everyone
-              </h1>
+                {/* Subheading */}
+                <p className="text-sm sm:text-base md:text-lg text-gray-500 mb-5 sm:mb-6 leading-relaxed">
+                  Convert documents, shrink file sizes, merge PDFs, and edit with ease. 
+                  <span className="text-gray-700 font-medium"> No signup, no fees, no nonsense.</span>
+                </p>
 
-              {/* Subheading */}
-              <p className="text-sm sm:text-base md:text-lg text-gray-500 mb-5 sm:mb-6 leading-relaxed">
-                Convert, compress, merge, and edit PDFs instantly. 
-                <span className="text-gray-700 font-medium"> Free forever</span>, no signup required.
-              </p>
+                {/* CTA + Trust */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+                  <a 
+                    href="#tools" 
+                    className="group inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:shadow-xl hover:shadow-red-500/20 active:scale-[0.98] transition-all duration-300 touch-manipulation"
+                    aria-label="Start using free PDF tools"
+                  >
+                    <span className="text-sm sm:text-base">Get Started Free</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                  <div className="flex items-center gap-3 text-xs sm:text-sm text-gray-500">
+                    <div className="flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
+                      <span>Secure</span>
+                    </div>
+                    <span className="text-gray-300">•</span>
+                    <div className="flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
+                      <span>Fast</span>
+                    </div>
+                  </div>
+                </div>
 
-              {/* CTA + Trust */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+                {/* Mini Stats */}
+                <div className="flex flex-wrap gap-4 sm:gap-6 pt-4 border-t border-gray-100">
+                  <StatItem value="30M+" label="Files processed" Icon={FileText} />
+                  <StatItem value="100M+" label="Happy users" Icon={Users} />
+                  <StatItem value="99.9%" label="Uptime" Icon={Shield} />
+                </div>
+              </div>
+
+              {/* Right Illustration */}
+              <div className={`hidden lg:block transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-br from-red-100/50 to-orange-100/50 rounded-3xl blur-2xl" />
+                  <div className="relative bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 shadow-xl">
+                    <HeroIllustration />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Tools Grid Section - Compact */}
+        <section id="tools" className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
+          <div className="max-w-7xl mx-auto">
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
+                  All PDF Tools
+                </h2>
+                <p className="text-sm sm:text-base text-gray-500">
+                  Everything you need to work with PDF files
+                </p>
+              </div>
+            </div>
+
+            {/* Tools Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
+              {tools.map((tool) => (
+                <ToolCard key={tool.name} tool={tool} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works - Compact Inline */}
+        <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-5 gap-6 lg:gap-8 items-center">
+              {/* Left - Title */}
+              <div className="lg:col-span-2">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2 sm:mb-3">
+                  Simple as 1-2-3
+                </h2>
+                <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4">
+                  No complicated steps. Just upload, process, and download.
+                </p>
                 <a 
                   href="#tools" 
-                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:shadow-xl hover:shadow-red-500/20 active:scale-[0.98] transition-all duration-300 touch-manipulation"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
+                  aria-label="Try PDF tools now"
                 >
-                  <span className="text-sm sm:text-base">Get Started Free</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  Try it now
+                  <ArrowRight className="w-4 h-4" />
                 </a>
-                <div className="flex items-center gap-3 text-xs sm:text-sm text-gray-500">
-                  <div className="flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
-                    <span>Secure</span>
-                  </div>
-                  <span className="text-gray-300">•</span>
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
-                    <span>Fast</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Mini Stats */}
-              <div className="flex flex-wrap gap-4 sm:gap-6 pt-4 border-t border-gray-100">
-                <StatItem value="30M+" label="Files processed" Icon={FileText} />
-                <StatItem value="100M+" label="Happy users" Icon={Users} />
-                <StatItem value="99.9%" label="Uptime" Icon={Shield} />
-              </div>
-            </div>
-
-            {/* Right Illustration */}
-            <div className={`hidden lg:block transition-all duration-500 delay-150 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-br from-red-100/50 to-orange-100/50 rounded-3xl blur-2xl" />
-                <div className="relative bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 shadow-xl">
-                  <HeroIllustration />
-                </div>
+              {/* Right - Steps */}
+              <div className="lg:col-span-3 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                {[
+                  { num: "1", Icon: Upload, title: "Upload", desc: "Select your file" },
+                  { num: "2", Icon: Zap, title: "Process", desc: "Instant conversion" },
+                  { num: "3", Icon: Download, title: "Download", desc: "Get your file" },
+                ].map((step, i) => (
+                  <div key={i} className="flex-1 relative">
+                    <div className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
+                      <div className="relative">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                          <step.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                        </div>
+                        <div className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-white border-2 border-red-500 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-red-500">
+                          {step.num}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-900 text-sm sm:text-base">{step.title}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">{step.desc}</div>
+                      </div>
+                    </div>
+                    {i < 2 && (
+                      <div className="hidden sm:block absolute top-1/2 -right-2 transform translate-x-full -translate-y-1/2 text-gray-300">
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Tools Grid Section - Compact */}
-      <section id="tools" className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-            <div>
+        {/* Features Section - Compact */}
+        <section className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
-                All PDF Tools
+                Why SmallPDF.us?
               </h2>
-              <p className="text-sm sm:text-base text-gray-500">
-                Everything you need to work with PDF files
+              <p className="text-sm sm:text-base text-gray-500">Enterprise features, completely free</p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+              <FeatureMiniCard 
+                title="Bank-Level Security"
+                description="256-bit encryption. Files auto-delete after processing."
+                Illustration={SecureIllustration}
+              />
+              <FeatureMiniCard 
+                title="Lightning Fast"
+                description="Process files in seconds with optimized servers."
+                Illustration={FastIllustration}
+              />
+              <FeatureMiniCard 
+                title="Always Free"
+                description="No hidden fees. No signup. No limits."
+                Illustration={FreeIllustration}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Content Section - What We Offer - More human and natural */}
+        <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-3 sm:mb-4">
+                Why We Built This
+              </h2>
+            </div>
+            
+            <div className="prose prose-gray max-w-none">
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
+                Look, PDFs can be incredibly frustrating to deal with. We've all been there: frantically trying to combine multiple files while a deadline looms overhead, struggling to shrink a massive document so it'll actually send through email, or desperately wanting to convert a PDF to Word without the formatting turning into absolute chaos. Sound familiar?
+              </p>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
+                That frustration is exactly why we created this site. We wanted to build something different, something that actually works the way you'd expect it to. No confusing menus buried three clicks deep, no surprise paywalls popping up right when you need something, and absolutely no forcing you to create yet another account just to resize an image or merge two files.
+              </p>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                Whether you're a student pulling together research papers at midnight, a professional handling contracts and invoices, or just someone who needs to quickly sign and send a document, these tools are designed to save you time and spare you the headache. We've refined every feature based on real user feedback, and we keep improving because your time matters more than anything else.
               </p>
             </div>
           </div>
+        </section>
 
-          {/* Tools Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
-            {tools.map((tool) => (
-              <ToolCard key={tool.name} tool={tool} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works - Compact Inline */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-5 gap-6 lg:gap-8 items-center">
-            {/* Left - Title */}
-            <div className="lg:col-span-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2 sm:mb-3">
-                Simple as 1-2-3
-              </h2>
-              <p className="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4">
-                No complicated steps. Just upload, process, and download.
-              </p>
-              <a 
-                href="#tools" 
-                className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-700 transition-colors"
-              >
-                Try it now
-                <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-
-            {/* Right - Steps */}
-            <div className="lg:col-span-3 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              {[
-                { num: "1", Icon: Upload, title: "Upload", desc: "Select your file" },
-                { num: "2", Icon: Zap, title: "Process", desc: "Instant conversion" },
-                { num: "3", Icon: Download, title: "Download", desc: "Get your file" },
-              ].map((step, i) => (
-                <div key={i} className="flex-1 relative">
-                  <div className="flex items-center gap-3 sm:gap-4 bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
-                    <div className="relative">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <step.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                      </div>
-                      <div className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-white border-2 border-red-500 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-red-500">
-                        {step.num}
-                      </div>
+        {/* Testimonials/Social Proof */}
+        <section className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-36 sm:w-48 h-36 sm:h-48 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
+              
+              <div className="relative grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
+                <div>
+                  <div className="flex gap-1 mb-3 sm:mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  <blockquote className="text-lg sm:text-xl md:text-2xl font-medium text-white mb-3 sm:mb-4 leading-relaxed">
+                    "The best PDF tool I've ever used. Fast, free, and just works."
+                  </blockquote>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      M
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900 text-sm sm:text-base">{step.title}</div>
-                      <div className="text-xs sm:text-sm text-gray-500">{step.desc}</div>
+                      <div className="text-white font-semibold text-sm sm:text-base">Michael Chen</div>
+                      <div className="text-gray-400 text-xs sm:text-sm">Product Designer</div>
                     </div>
                   </div>
-                  {i < 2 && (
-                    <div className="hidden sm:block absolute top-1/2 -right-2 transform translate-x-full -translate-y-1/2 text-gray-300">
-                      <ChevronRight className="w-4 h-4" />
+                </div>
+
+                <div className="flex flex-col items-center md:items-end gap-3 sm:gap-4">
+                  <p className="text-gray-400 text-xs sm:text-sm">Trusted by teams at</p>
+                  <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 items-center">
+                    {["Google", "Microsoft", "Amazon", "Meta"].map((company) => (
+                      <div key={company} className="text-gray-500 font-bold text-base sm:text-lg opacity-50 hover:opacity-100 transition-opacity">
+                        {company}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 mb-2 sm:mb-3">
+                Frequently Asked Questions
+              </h2>
+            </div>
+
+            <div className="space-y-3">
+              {faqs.map((faq, index) => (
+                <FAQItem
+                  key={index}
+                  question={faq.question}
+                  answer={faq.answer}
+                  isOpen={openFAQ === index}
+                  onToggle={() => toggleFAQ(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Premium CTA - Compact */}
+        <section className="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 py-12 px-4 md:px-6 overflow-hidden">
+          <div className="absolute inset-0 bg-pattern opacity-10"></div>
+          <div className="max-w-6xl mx-auto relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="text-white">
+                <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
+                  Unlock the full power of PDF tools
+                </h2>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
+                    <p className="font-medium">Unlimited file size and batch processing</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
+                    <p className="font-medium">Advanced OCR for scanned documents</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
+                    <p className="font-medium">Desktop and mobile apps included</p>
+                  </div>
+                </div>
+
+                <button className="bg-white text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all hover:shadow-xl text-base">
+                  ⭐ Get Premium Now
+                </button>
+              </div>
+
+              <div className="relative">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 transform rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-105">
+                  <div className="text-5xl mb-4 text-center">🎉</div>
+                  <h3 className="font-bold text-xl mb-2 text-gray-900">Premium Features</h3>
+                  <div className="space-y-2 text-gray-700 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <span>Unlimited conversions</span>
                     </div>
-                  )}
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <span>No file size limits</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <span>Batch processing</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <span>Ad-free experience</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA - Compact */}
+        <section className="py-8 sm:py-10 md:py-12 px-4 bg-gradient-to-r from-red-600 to-orange-500">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+              <div className="text-center sm:text-left">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1 sm:mb-2">
+                  Ready to get started?
+                </h2>
+                <p className="text-sm sm:text-base text-white/80">
+                  Start converting your PDFs now. No signup needed.
+                </p>
+              </div>
+              <a 
+                href="#tools" 
+                className="inline-flex items-center gap-2 bg-white text-gray-900 font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-gray-100 hover:shadow-xl active:scale-[0.98] transition-all duration-300 touch-manipulation"
+                aria-label="Choose a PDF tool to start"
+              >
+                <span className="text-sm sm:text-base">Choose a Tool</span>
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            </div>
+            
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-white/20">
+              {[
+                { Icon: Lock, text: "SSL Secured" },
+                { Icon: Check, text: "GDPR Compliant" },
+                { Icon: Clock, text: "Auto-delete files" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 text-white/70 text-xs sm:text-sm">
+                  <item.Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span>{item.text}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section - Compact */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-1 sm:mb-2">
-              Why SmallPDF.us?
-            </h2>
-            <p className="text-sm sm:text-base text-gray-500">Enterprise features, completely free</p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            <FeatureMiniCard 
-              title="Bank-Level Security"
-              description="256-bit encryption. Files auto-delete after processing."
-              Illustration={SecureIllustration}
-            />
-            <FeatureMiniCard 
-              title="Lightning Fast"
-              description="Process files in seconds with optimized servers."
-              Illustration={FastIllustration}
-            />
-            <FeatureMiniCard 
-              title="Always Free"
-              description="No hidden fees. No signup. No limits."
-              Illustration={FreeIllustration}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Content Section - What We Offer */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-3 sm:mb-4">
-              The Smarter Way to Handle PDFs
-            </h2>
-          </div>
-          
-          <div className="prose prose-gray max-w-none">
-            <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-              Let's be honest PDFs are not the easiest files to work with and can give you a headache. I bet you have experienced that situation: being unable to merge files while a time limit is ticking, trying to reduce the size of a file that is too large for sending via email, or wanting to convert a PDF to Word in a way that no formatting is lost. Do these situations sound familiar to you?            </p>
-            <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-4">
-              That's exactly why we built this converter. We wanted to create something different PDF tools that actually works the way you'd expect it to. No confusing interfaces, no surprise paywalls, and definitely no mandatory account creation just to shrink a file.
-            </p>
-            <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-              Whatever be the case, if you are a student compiling research papers, or a professional handling contracts or simply a person who needs to sign and send a document quickly, our tools are made to keep your time safe and away from frustration. The features of our product have been improved with the user feedback and we keep on upgrading for your convenience.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials/Social Proof */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-36 sm:w-48 h-36 sm:h-48 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
-            
-            <div className="relative grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
-              <div>
-                <div className="flex gap-1 mb-3 sm:mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <blockquote className="text-lg sm:text-xl md:text-2xl font-medium text-white mb-3 sm:mb-4 leading-relaxed">
-                  "The best PDF tool I've ever used. Fast, free, and just works."
-                </blockquote>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    M
-                  </div>
-                  <div>
-                    <div className="text-white font-semibold text-sm sm:text-base">Michael Chen</div>
-                    <div className="text-gray-400 text-xs sm:text-sm">Product Designer</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center md:items-end gap-3 sm:gap-4">
-                <p className="text-gray-400 text-xs sm:text-sm">Trusted by teams at</p>
-                <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 items-center">
-                  {["Google", "Microsoft", "Amazon", "Meta"].map((company) => (
-                    <div key={company} className="text-gray-500 font-bold text-base sm:text-lg opacity-50 hover:opacity-100 transition-opacity">
-                      {company}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-       {/* FAQ */}
-      <section className="py-10 sm:py-12 md:py-16 px-4 bg-white">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 mb-2 sm:mb-3">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-3">
-            {faqs.map((faq, index) => (
-              <FAQItem
-                key={index}
-                question={faq.question}
-                answer={faq.answer}
-                isOpen={openFAQ === index}
-                onToggle={() => toggleFAQ(index)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* Premium CTA - Compact */}
-      <section className="relative bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 py-12 px-4 md:px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-pattern opacity-10"></div>
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="text-white">
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
-                Unlock the full power of iLovePDF
-              </h2>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex items-start gap-2">
-                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
-                  <p className="font-medium">Unlimited file size and batch processing</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
-                  <p className="font-medium">Advanced OCR for scanned documents</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5 bg-white/20 rounded-full p-1" />
-                  <p className="font-medium">Desktop and mobile apps included</p>
-                </div>
-              </div>
-
-              <button className="bg-white text-gray-900 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-all hover:shadow-xl text-base">
-                ⭐ Get Premium Now
-              </button>
-            </div>
-
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 transform rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-105">
-                <div className="text-5xl mb-4 text-center">🎉</div>
-                <h3 className="font-bold text-xl mb-2 text-gray-900">Premium Features</h3>
-                <div className="space-y-2 text-gray-700 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <span>Unlimited conversions</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <span>No file size limits</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <span>Batch processing</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    <span>Ad-free experience</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* Final CTA - Compact */}
-      <section className="py-8 sm:py-10 md:py-12 px-4 bg-gradient-to-r from-red-600 to-orange-500">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
-            <div className="text-center sm:text-left">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1 sm:mb-2">
-                Ready to get started?
-              </h2>
-              <p className="text-sm sm:text-base text-white/80">
-                Start converting your PDFs now. No signup needed.
-              </p>
-            </div>
-            <a 
-              href="#tools" 
-              className="inline-flex items-center gap-2 bg-white text-gray-900 font-bold px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl hover:bg-gray-100 hover:shadow-xl active:scale-[0.98] transition-all duration-300 touch-manipulation"
-            >
-              <span className="text-sm sm:text-base">Choose a Tool</span>
-              <ChevronRight className="w-4 h-4" />
-            </a>
-          </div>
-          
-          <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 mt-5 sm:mt-6 pt-5 sm:pt-6 border-t border-white/20">
-            {[
-              { Icon: Lock, text: "SSL Secured" },
-              { Icon: Check, text: "GDPR Compliant" },
-              { Icon: Clock, text: "Auto-delete files" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-white/70 text-xs sm:text-sm">
-                <item.Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{item.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </Layout>
+        </section>
+      </Layout>
+    </>
   )
 }

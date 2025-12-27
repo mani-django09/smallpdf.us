@@ -36,6 +36,7 @@ export default function PreviewMergePDF() {
   const [progress, setProgress] = useState(0)
   const [stage, setStage] = useState("")
   const [draggedIndex, setDraggedIndex] = useState(null)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     const storedFiles = sessionStorage.getItem("uploadedPDFs")
@@ -93,6 +94,7 @@ export default function PreviewMergePDF() {
     setMerging(true)
     setProgress(0)
     setStage("Preparing files...")
+    setError("")
 
     const stages = [
       { progress: 15, text: "Uploading documents...", delay: 400 },
@@ -124,36 +126,72 @@ export default function PreviewMergePDF() {
         formData.append("files", file)
       }
 
-      const mergeResponse = await fetch("http://localhost:5011/api/merge-pdf", {
+      // FIXED: Proper API URL with fallback and proper fetch options
+      const API_URL = typeof window !== 'undefined' && window.location.hostname === 'smallpdf.us' 
+        ? 'https://smallpdf.us' 
+        : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5011')
+      
+      console.log('🔧 Merging PDFs with API:', API_URL)
+
+      const mergeResponse = await fetch(`${API_URL}/api/merge-pdf`, {
         method: "POST",
         body: formData,
+        credentials: 'include',
+        mode: 'cors',
       })
 
+      console.log('📊 Merge response status:', mergeResponse.status)
+
+      if (!mergeResponse.ok) {
+        let errorText = await mergeResponse.text()
+        console.error('❌ Merge API error:', errorText)
+        
+        // Check if we got HTML instead of JSON (common error)
+        if (errorText.includes('<!DOCTYPE') || errorText.includes('<html')) {
+          throw new Error(`Server error: API returned HTML instead of JSON. Check that backend is running on port 5011`)
+        }
+        
+        throw new Error(`Merge failed: ${mergeResponse.status} - ${errorText}`)
+      }
+
+      const contentType = mergeResponse.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await mergeResponse.text()
+        console.error('❌ Non-JSON response:', text.substring(0, 200))
+        throw new Error(`Server returned non-JSON response. Check backend server.`)
+      }
+
       const result = await mergeResponse.json()
+      console.log('✅ Merge result:', result)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Merge failed')
+      }
 
       setProgress(100)
       setStage("Complete!")
 
-      if (mergeResponse.ok) {
-        sessionStorage.setItem(
-          "mergeResult",
-          JSON.stringify({
-            ...result,
-            fileCount: filesData.length,
-            totalSize: filesData.reduce((acc, f) => acc + f.size, 0),
-          }),
-        )
-        setTimeout(() => {
-          router.push(`/merge-pdf/download?file=${encodeURIComponent(result.downloadUrl)}`)
-        }, 500)
-      } else {
-        alert("Merge failed: " + result.error)
-        setMerging(false)
-      }
+      sessionStorage.setItem(
+        "mergeResult",
+        JSON.stringify({
+          ...result,
+          fileCount: filesData.length,
+          totalSize: filesData.reduce((acc, f) => acc + f.size, 0),
+        }),
+      )
+      
+      setTimeout(() => {
+        router.push(`/merge-pdf/download?file=${encodeURIComponent(result.downloadUrl)}`)
+      }, 500)
     } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to merge files. Please try again.")
+      console.error("❌ Merge error:", error)
+      setError(error.message)
       setMerging(false)
+      setProgress(0)
+      setStage("")
+      
+      // User-friendly error message
+      alert(`Failed to merge PDFs:\n\n${error.message}\n\nTroubleshooting:\n✓ Check backend is running: http://localhost:5011/api/health\n✓ Check browser console for CORS errors\n✓ Verify all files are valid PDFs`)
     }
   }
 
@@ -283,6 +321,13 @@ export default function PreviewMergePDF() {
                 <div className="p-5">
                   {!merging ? (
                     <>
+                      {/* Error Display */}
+                      {error && (
+                        <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                          <p className="text-sm text-red-700 font-medium">{error}</p>
+                        </div>
+                      )}
+
                       {/* File List */}
                       <div className="mb-5">
                         <div className="flex items-center justify-between mb-3">

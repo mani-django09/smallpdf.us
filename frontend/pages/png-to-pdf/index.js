@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Shield, ChevronDown, ImageIcon } from "lucide-react"
-import Head from "next/head"
 
 export default function PngToPdf() {
   const router = useRouter()
@@ -160,53 +160,83 @@ export default function PngToPdf() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PNG to PDF Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/png-to-pdf",
+        "description": "Convert PNG and other images to PDF format online for free",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "22156",
+        },
+        "featureList": [
+          "Convert up to 50 images",
+          "Supports PNG, JPG, WEBP",
+          "Custom page sizes (A4, Letter, Legal)",
+          "Portrait and landscape modes",
+          "Original quality preservation",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert Images to PDF",
+        "description": "Step-by-step guide to creating PDF documents from images",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload Images",
+            "text": "Select PNG, JPG, or WEBP images from your device. You can upload up to 50 images at once.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Arrange and Configure",
+            "text": "Drag images to arrange order. Choose page size (A4, Letter, Legal, or Fit to Image) and orientation.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Convert and Download",
+            "text": "Click convert to create your PDF. Download the file with all images combined in one document.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Convert PNG to PDF Online Free | Image to PDF Converter - SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert PNG images to PDF online for free. Create professional PDF documents from multiple images. Easy drag-and-drop, custom page sizes, instant conversion. No registration needed."
-        />
-        <meta
-          name="keywords"
-          content="png to pdf, convert png to pdf, image to pdf, jpg to pdf, photo to pdf converter, png to pdf online free, multiple images to pdf, picture to pdf"
-        />
-        <link rel="canonical" href="https://smallpdf.us/png-to-pdf" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/png-to-pdf" />
-        <meta property="og:title" content="Convert PNG to PDF Online Free | Image to PDF Converter - SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Transform your PNG images into professional PDF documents. Free, fast, and secure conversion."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PNG to PDF Converter - SmallPDF.us",
-              url: "https://smallpdf.us/png-to-pdf",
-              description: "Convert PNG and other images to PDF format online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "22156",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Convert PNG to PDF Online Free - Image to PDF Converter | SmallPDF.us"
+        description="Convert PNG images to PDF online for free. Create professional PDF documents from multiple images. Easy drag-and-drop, custom page sizes, instant conversion. No registration needed."
+        canonical="https://smallpdf.us/png-to-pdf"
+        ogImage="/og-png-to-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="PNG to PDF - Convert Images to PDF Online"
@@ -304,7 +334,6 @@ export default function PngToPdf() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

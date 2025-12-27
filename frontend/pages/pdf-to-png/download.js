@@ -58,7 +58,6 @@ export default function DownloadPDFtoPNG() {
   }
 
   // Fixed handleDownload function for pdf-to-png download page
-// Replace the existing handleDownload function in your download page with this:
 
 const handleDownload = async () => {
   if (!downloadData?.jobId) return

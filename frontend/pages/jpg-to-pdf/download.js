@@ -70,7 +70,7 @@ export default function DownloadJpgToPdf() {
 
   try {
     // Use the correct endpoint for JPG to PDF downloads
-    const downloadUrl = `http://localhost:5000/api/download-jpg-pdf/${convertResult.jobId}`
+    const downloadUrl = `https://smallpdf.us/api/download-jpg-pdf/${convertResult.jobId}`
     const response = await fetch(downloadUrl)
     
     if (!response.ok) {

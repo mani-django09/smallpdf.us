@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, Image } from "lucide-react"
-import Head from "next/head"
 
 export default function JpgToPdf() {
   const router = useRouter()
@@ -27,7 +27,11 @@ export default function JpgToPdf() {
     const validTypes = ["image/jpeg", "image/jpg"]
     const maxSize = 50 * 1024 * 1024
 
-    if (!validTypes.includes(file.type) && !file.name.toLowerCase().match(/\.(jpg|jpeg)$/)) {
+    const ext = file.name.toLowerCase()
+    const hasValidExtension = ext.endsWith('.jpg') || ext.endsWith('.jpeg')
+    const hasValidMimeType = validTypes.includes(file.type)
+
+    if (!hasValidExtension && !hasValidMimeType) {
       return { valid: false, error: "Please select JPG or JPEG image files only" }
     }
 
@@ -160,53 +164,84 @@ export default function JpgToPdf() {
     },
   ]
 
+  // Custom structured data for jpg-to-pdf page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "JPG to PDF Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/jpg-to-pdf",
+        "description": "Convert JPG images to PDF documents online for free with batch processing",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "24567",
+        },
+        "featureList": [
+          "Convert up to 20 JPG images",
+          "Merge multiple images into one PDF",
+          "Original quality preservation",
+          "Drag and drop interface",
+          "Batch processing support",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert JPG to PDF",
+        "description": "Step-by-step guide to converting JPG images to PDF documents",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload JPG Images",
+            "text": "Select one or more JPG files from your device. You can upload up to 20 images at once, each up to 50MB in size.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Arrange Images",
+            "text": "Drag and drop to arrange your images in the desired order. The PDF will contain pages in this sequence.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Convert and Download",
+            "text": "Click the convert button and wait a few seconds. Download your PDF file with all images combined.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>JPG to PDF Converter - Convert Images to PDF Online Free | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert JPG images to PDF documents online for free. Fast, secure JPG to PDF converter with batch processing. Merge multiple JPG files into one PDF. No registration required."
-        />
-        <meta
-          name="keywords"
-          content="jpg to pdf, convert jpg to pdf, jpg to pdf converter, jpeg to pdf, image to pdf, photo to pdf converter, merge jpg to pdf, combine images to pdf free"
-        />
-        <link rel="canonical" href="https://smallpdf.us/jpg-to-pdf" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/jpg-to-pdf" />
-        <meta property="og:title" content="JPG to PDF Converter - Convert Images to PDF Online Free" />
-        <meta
-          property="og:description"
-          content="Convert JPG images to PDF documents instantly. Free, fast, and secure conversion with batch processing support."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "JPG to PDF Converter - SmallPDF.us",
-              url: "https://smallpdf.us/jpg-to-pdf",
-              description: "Convert JPG images to PDF documents online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "24567",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="JPG to PDF Converter - Convert Images to PDF Online Free | SmallPDF.us"
+        description="Convert JPG images to PDF documents online for free. Fast, secure JPG to PDF converter with batch processing. Merge multiple JPG files into one PDF. No registration required."
+        canonical="https://smallpdf.us/jpg-to-pdf"
+        ogImage="/og-jpg-to-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="JPG to PDF - Convert JPG Images to PDF Documents"
@@ -262,7 +297,6 @@ export default function JpgToPdf() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

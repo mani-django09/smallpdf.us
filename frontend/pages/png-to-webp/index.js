@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, ImageIcon, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, FileImage } from "lucide-react"
-import Head from "next/head"
 
 export default function PngToWebp() {
   const router = useRouter()
@@ -151,53 +151,83 @@ export default function PngToWebp() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PNG to WEBP Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/png-to-webp",
+        "description": "Convert PNG images to WEBP format online for free",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "17429",
+        },
+        "featureList": [
+          "Convert up to 20 PNG images",
+          "25-35% smaller file sizes",
+          "Preserves transparency",
+          "Batch processing",
+          "Original quality maintained",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert PNG to WEBP",
+        "description": "Step-by-step guide to converting PNG images to WEBP format",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PNG Images",
+            "text": "Select PNG files from your device. You can upload up to 20 images at once for batch conversion.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Automatic Conversion",
+            "text": "Our system converts each PNG to WEBP format, reducing file size by 25-35% while maintaining quality and transparency.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download WEBP Files",
+            "text": "Download converted images individually or get all files in a ZIP archive. Use them on your website for faster loading.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>PNG to WEBP Converter Online Free - Reduce Image Size | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert PNG to WEBP online for free. Reduce file size by up to 35% without losing quality. Fast PNG to WEBP converter with batch processing. Make your images smaller."
-        />
-        <meta
-          name="keywords"
-          content="png to webp, convert png to webp, png to webp converter, png converter online, change png to webp, webp converter, free png to webp, reduce image size"
-        />
-        <link rel="canonical" href="https://smallpdf.us/png-to-webp" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/png-to-webp" />
-        <meta property="og:title" content="PNG to WEBP Converter Online Free - Reduce Image Size | SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Turn PNG images into smaller WEBP files. Free, fast, and keeps your images looking great."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PNG to WEBP Converter - SmallPDF.us",
-              url: "https://smallpdf.us/png-to-webp",
-              description: "Convert PNG images to WEBP format online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "17429",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="PNG to WEBP Converter Online Free - Reduce Image Size | SmallPDF.us"
+        description="Convert PNG to WEBP online for free. Reduce file size by up to 35% without losing quality. Fast PNG to WEBP converter with batch processing. Make your images smaller."
+        canonical="https://smallpdf.us/png-to-webp"
+        ogImage="/og-png-to-webp.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="PNG to WEBP - Convert Images Online"
@@ -295,7 +325,6 @@ export default function PngToWebp() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

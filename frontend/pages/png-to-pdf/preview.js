@@ -104,8 +104,7 @@ export default function PreviewPngToPdf() {
       formData.append("pageSize", settings.pageSize)
       formData.append("orientation", settings.orientation)
 
-      const convertResponse = await fetch("http://localhost:5011/api/png-to-pdf", {
-        method: "POST",
+      const convertResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/png-to-pdf`, {        method: "POST",
         body: formData,
       })
 

@@ -41,67 +41,68 @@ export default function PreviewPDFToJPG() {
   }, [router])
 
   const handleConvert = async () => {
-    if (!fileData) return
+  if (!fileData) return
 
-    setConverting(true)
-    setProgress(0)
-    setStage("Uploading PDF...")
+  setConverting(true)
+  setProgress(0)
+  setStage("Uploading PDF...")
 
-    const stages = [
-      { progress: 15, text: "Uploading PDF...", delay: 400 },
-      { progress: 30, text: "Analyzing pages...", delay: 500 },
-      { progress: 50, text: "Rendering images...", delay: 600 },
-      { progress: 70, text: "Optimizing quality...", delay: 400 },
-      { progress: 85, text: "Generating JPG files...", delay: 300 },
-      { progress: 95, text: "Packaging download...", delay: 200 },
-    ]
+  const stages = [
+    { progress: 15, text: "Uploading PDF...", delay: 400 },
+    { progress: 30, text: "Analyzing pages...", delay: 500 },
+    { progress: 50, text: "Rendering images...", delay: 600 },
+    { progress: 70, text: "Optimizing quality...", delay: 400 },
+    { progress: 85, text: "Generating JPG files...", delay: 300 },
+    { progress: 95, text: "Packaging download...", delay: 200 },
+  ]
 
-    let currentStage = 0
-    const updateProgress = () => {
-      if (currentStage < stages.length) {
-        setProgress(stages[currentStage].progress)
-        setStage(stages[currentStage].text)
-        currentStage++
-        setTimeout(updateProgress, stages[currentStage - 1].delay)
-      }
-    }
-    updateProgress()
-
-    try {
-      const response = await fetch(fileData.data)
-      const blob = await response.blob()
-      const file = new File([blob], fileData.name, { type: fileData.type })
-
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("quality", quality)
-
-      const convertResponse = await fetch("http://localhost:5011/api/pdf-to-jpg", {
-        method: "POST",
-        body: formData,
-      })
-
-      const result = await convertResponse.json()
-
-      setProgress(100)
-      setStage("Complete!")
-
-      if (convertResponse.ok) {
-        sessionStorage.setItem("jpgConversionResult", JSON.stringify(result))
-        setTimeout(() => {
-          router.push(`/pdf-to-jpg/download?file=${encodeURIComponent(result.downloadUrl)}`)
-        }, 500)
-      } else {
-        alert("Conversion failed: " + result.error)
-        setConverting(false)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to convert file. Please try again.")
-      setConverting(false)
+  let currentStage = 0
+  const updateProgress = () => {
+    if (currentStage < stages.length) {
+      setProgress(stages[currentStage].progress)
+      setStage(stages[currentStage].text)
+      currentStage++
+      setTimeout(updateProgress, stages[currentStage - 1].delay)
     }
   }
+  updateProgress()
 
+  try {
+    const response = await fetch(fileData.data)
+    const blob = await response.blob()
+    const file = new File([blob], fileData.name, { type: fileData.type })
+
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("quality", quality)
+
+    // USE ENVIRONMENT VARIABLE
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5011'
+    const convertResponse = await fetch(`${API_URL}/api/pdf-to-jpg`, {
+      method: "POST",
+      body: formData,
+    })
+
+    const result = await convertResponse.json()
+
+    setProgress(100)
+    setStage("Complete!")
+
+    if (convertResponse.ok) {
+      sessionStorage.setItem("jpgConversionResult", JSON.stringify(result))
+      setTimeout(() => {
+        router.push(`/pdf-to-jpg/download?file=${encodeURIComponent(result.downloadUrl)}`)
+      }, 500)
+    } else {
+      alert("Conversion failed: " + result.error)
+      setConverting(false)
+    }
+  } catch (error) {
+    console.error("Error:", error)
+    alert("Failed to convert file. Please try again.")
+    setConverting(false)
+  }
+}
   if (!fileData) {
     return (
       <Layout>

@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, Trash2, Minimize2 } from "lucide-react"
-import Head from "next/head"
 
 export default function CompressImage() {
   const router = useRouter()
@@ -169,53 +169,83 @@ export default function CompressImage() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Image Compressor - SmallPDF.us",
+        "url": "https://smallpdf.us/compress-image",
+        "description": "Compress images online free - reduce file size without quality loss",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "19652",
+        },
+        "featureList": [
+          "Compress up to 20 images",
+          "50-80% file size reduction",
+          "Supports JPG, PNG, WEBP",
+          "Batch processing",
+          "No quality loss",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Compress Images",
+        "description": "Step-by-step guide to compressing images without losing quality",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload Images",
+            "text": "Upload your JPG, PNG, or WEBP files. Add up to 20 images for batch compression.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Smart Compression",
+            "text": "Our system automatically optimizes each image to reduce file size by 50-80% while maintaining visual quality.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download Compressed Images",
+            "text": "Download your optimized images individually or get all files in a convenient ZIP archive.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Compress Images Online Free - Reduce Image Size | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Compress JPG, PNG, WEBP images online for free. Reduce image file size up to 80% without losing quality. Fast batch image compression tool for web and social media."
-        />
-        <meta
-          name="keywords"
-          content="compress image, reduce image size, image compressor online, compress jpg, compress png, reduce photo size, image optimizer, compress images free, batch image compression"
-        />
-        <link rel="canonical" href="https://smallpdf.us/compress-image" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/compress-image" />
-        <meta property="og:title" content="Compress Images Online Free - Reduce Image Size | SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Shrink image files up to 80% without quality loss. Free, fast, and secure image compression."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Image Compressor - SmallPDF.us",
-              url: "https://smallpdf.us/compress-image",
-              description: "Compress images online free - reduce file size without quality loss",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "19652",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Compress Images Online Free - Reduce Image Size | SmallPDF.us"
+        description="Compress JPG, PNG, WEBP images online for free. Reduce image file size up to 80% without losing quality. Fast batch image compression tool for web and social media."
+        canonical="https://smallpdf.us/compress-image"
+        ogImage="/og-compress-image.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="Compress Image - Reduce File Size Online"
@@ -316,7 +346,6 @@ export default function CompressImage() {
                   </div>
                 ) : (
                   <>
-                    {/* Upload Area */}
                     <div
                       onDragEnter={handleDrag}
                       onDragLeave={handleDrag}

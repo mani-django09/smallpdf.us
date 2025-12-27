@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "@/components/Layout"
+import SEOHead from "@/components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, Trash2, Scissors, Eye, X } from "lucide-react"
-import Head from "next/head"
 
 export default function SplitPdf() {
   const router = useRouter()
@@ -43,7 +43,6 @@ export default function SplitPdf() {
     return { valid: true }
   }
 
-  // Use backend API to analyze PDF and generate thumbnails
   const analyzePdfWithBackend = async (uploadedFile) => {
     setLoadingPages(true)
     
@@ -86,7 +85,6 @@ export default function SplitPdf() {
     const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     
     try {
-      // Use backend to analyze PDF
       const analysis = await analyzePdfWithBackend(newFile)
       
       if (analysis && analysis.pageCount > 0) {
@@ -99,7 +97,6 @@ export default function SplitPdf() {
           jobId: analysis.jobId,
         })
         
-        // Create page objects with thumbnails from backend
         const pageObjects = analysis.thumbnails && analysis.thumbnails.length > 0
           ? analysis.thumbnails.map((thumb, index) => ({
               pageNumber: index + 1,
@@ -241,53 +238,83 @@ export default function SplitPdf() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Split PDF - SmallPDF.us",
+        "url": "https://smallpdf.us/split-pdf",
+        "description": "Extract specific pages from PDF documents online for free",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "18943",
+        },
+        "featureList": [
+          "Visual page selection with thumbnails",
+          "Extract any page combination",
+          "Preserves original quality",
+          "No page limit",
+          "Secure encryption",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Split PDF and Extract Pages",
+        "description": "Step-by-step guide to extracting specific pages from PDF documents",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload Your PDF",
+            "text": "Upload your PDF file. We'll load all pages and show you thumbnail previews of each one.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Select Pages to Extract",
+            "text": "Click on the pages you want to extract. They'll highlight in blue. Select any combination of pages you need.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download New PDF",
+            "text": "Click extract and download your new PDF containing only the selected pages. Your original file remains unchanged.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Split PDF Online Free - Extract Pages from PDF | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Extract specific pages from PDF documents online for free. Select pages you need and create a new PDF instantly. Simple, fast, and secure PDF splitting tool."
-        />
-        <meta
-          name="keywords"
-          content="split pdf, extract pdf pages, pdf splitter, remove pages from pdf, pdf page extractor, separate pdf pages, free pdf splitter, divide pdf"
-        />
-        <link rel="canonical" href="https://smallpdf.us/split-pdf" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/split-pdf" />
-        <meta property="og:title" content="Split PDF Online Free - Extract Pages from PDF | SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Extract and save specific pages from your PDF files. Quick, easy, and completely free."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "Split PDF - SmallPDF.us",
-              url: "https://smallpdf.us/split-pdf",
-              description: "Extract specific pages from PDF documents online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "18943",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Split PDF Online Free - Extract Pages from PDF | SmallPDF.us"
+        description="Extract specific pages from PDF documents online for free. Select pages you need and create a new PDF instantly. Simple, fast, and secure PDF splitting tool."
+        canonical="https://smallpdf.us/split-pdf"
+        ogImage="/og-split-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="Split PDF - Extract Pages Online"
@@ -499,7 +526,6 @@ export default function SplitPdf() {
                             : "border-blue-200 hover:border-blue-300"
                         }`}
                       >
-                        {/* Thumbnail or Placeholder */}
                         <div className="aspect-[3/4] bg-white relative overflow-hidden">
                           {page.thumbnail ? (
                             <img
@@ -513,14 +539,12 @@ export default function SplitPdf() {
                             </div>
                           )}
 
-                          {/* Selection overlay */}
                           <div
                             className={`absolute inset-0 transition-all ${
                               selectedPages.includes(page.pageNumber) ? "bg-blue-600/20" : "bg-black/0 group-hover:bg-black/5"
                             }`}
                           />
 
-                          {/* Checkbox */}
                           <div
                             className={`absolute top-1 left-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                               selectedPages.includes(page.pageNumber)
@@ -531,7 +555,6 @@ export default function SplitPdf() {
                             {selectedPages.includes(page.pageNumber) && <CheckCircle2 className="w-3 h-3 text-white" />}
                           </div>
 
-                          {/* Preview button */}
                           {page.thumbnail && (
                             <button
                               onClick={(e) => {
@@ -546,7 +569,6 @@ export default function SplitPdf() {
                           )}
                         </div>
 
-                        {/* Page number */}
                         <div
                           className={`text-center py-1 text-xs font-medium ${
                             selectedPages.includes(page.pageNumber) ? "bg-blue-100 text-blue-700" : "bg-blue-50 text-slate-600"
@@ -570,7 +592,6 @@ export default function SplitPdf() {
                 </>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

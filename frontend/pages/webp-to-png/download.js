@@ -62,7 +62,7 @@ export default function DownloadWebpToPng() {
 
     try {
       // Use the standard download endpoint that your backend provides
-      const downloadUrl = `http://localhost:5011/api/download/${jobId}`
+      const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/download/${jobId}`
       
       const response = await fetch(downloadUrl)
       if (!response.ok) throw new Error("Download failed")

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import {
   Upload,
   FileText,
@@ -16,7 +17,6 @@ import {
   Sparkles,
   Monitor,
 } from "lucide-react"
-import Head from "next/head"
 
 export default function PDFtoPNG() {
   const router = useRouter()
@@ -62,7 +62,6 @@ export default function PDFtoPNG() {
     setError("")
 
     try {
-      // Create FormData and send to API
       const formData = new FormData()
       formData.append("pdf", newFile)
 
@@ -74,7 +73,6 @@ export default function PDFtoPNG() {
       const result = await response.json()
 
       if (response.ok) {
-        // Store conversion result
         sessionStorage.setItem(
           "pdfToPngResult",
           JSON.stringify({
@@ -153,53 +151,84 @@ export default function PDFtoPNG() {
     },
   ]
 
+  // Custom structured data for pdf-to-png page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PDF to PNG Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/pdf-to-png",
+        "description": "Convert PDF pages to high-quality PNG images online for free with transparency support",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.7",
+          "ratingCount": "19824",
+        },
+        "featureList": [
+          "Convert up to 200 PDF pages",
+          "150 DPI high quality output",
+          "Transparency support",
+          "Batch ZIP download",
+          "Individual page selection",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert PDF to PNG",
+        "description": "Step-by-step guide to extracting PNG images from PDF documents",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PDF File",
+            "text": "Select a PDF document from your device. Files up to 100MB are supported.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Preview Pages",
+            "text": "View all converted PNG images with transparency support. Each page becomes a separate high-quality PNG file.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download Images",
+            "text": "Download individual PNG files or get all pages in one ZIP archive. Your images are ready to use anywhere.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>PDF to PNG Converter Online Free | Extract Images from PDF - SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert PDF to PNG images online for free. Extract high-quality PNG images from PDF pages instantly. Supports transparency, batch conversion, no registration required. Try SmallPDF.us now."
-        />
-        <meta
-          name="keywords"
-          content="pdf to png, convert pdf to png, pdf to png converter, extract images from pdf, pdf to image online, png from pdf, pdf page to png, smallpdf"
-        />
-        <link rel="canonical" href="https://smallpdf.us/pdf-to-png" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/pdf-to-png" />
-        <meta property="og:title" content="PDF to PNG Converter Online Free | Extract Images from PDF - SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Convert PDF pages to high-quality PNG images instantly. Free, secure, and easy to use."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PDF to PNG Converter - SmallPDF.us",
-              url: "https://smallpdf.us/pdf-to-png",
-              description: "Convert PDF pages to high-quality PNG images online for free",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.7",
-                ratingCount: "19824",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="PDF to PNG Converter Online Free - Extract Images from PDF | SmallPDF.us"
+        description="Convert PDF to PNG images online for free. Extract high-quality PNG images from PDF pages instantly. Supports transparency, batch conversion, no registration required. Try SmallPDF.us now."
+        canonical="https://smallpdf.us/pdf-to-png"
+        ogImage="/og-pdf-to-png.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="PDF to PNG - Convert PDF to Images Online"
@@ -297,7 +326,6 @@ export default function PDFtoPNG() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}

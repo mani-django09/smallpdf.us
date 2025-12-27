@@ -22,6 +22,9 @@ import {
   FileOutput,
 } from "lucide-react"
 
+// Get API URL from environment or default to relative path
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
+
 export default function DownloadPdfToWord() {
   const router = useRouter()
   const { jobId } = router.query
@@ -62,12 +65,23 @@ export default function DownloadPdfToWord() {
     setDownloading(true)
 
     try {
-      const downloadUrl = `http://localhost:5011/api/download-word/${jobId}`
+      // FIX: Use proper API URL - relative path for production, or env variable
+      const downloadUrl = `${API_BASE_URL}/api/download-word/${jobId}`
+      console.log("Downloading from:", downloadUrl)
+      
       const response = await fetch(downloadUrl)
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Download failed")
+        // Try to get error message from response
+        let errorMessage = "Download failed"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
 
       const blob = await response.blob()
@@ -95,7 +109,7 @@ export default function DownloadPdfToWord() {
       setTimeout(() => setDownloadComplete(false), 4000)
     } catch (error) {
       console.error("Download error:", error)
-      alert(`Unable to download: ${error.message}. Please try again.`)
+      alert(`Unable to download: ${error.message}. Please try converting again.`)
     } finally {
       setDownloading(false)
     }

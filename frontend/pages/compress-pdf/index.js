@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, FileText, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, Minimize2 } from "lucide-react"
-import Head from "next/head"
 
 export default function CompressPdf() {
   const router = useRouter()
@@ -160,53 +160,84 @@ export default function CompressPdf() {
     },
   ]
 
+  // Custom structured data for compress-pdf page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PDF Compressor - SmallPDF.us",
+        "url": "https://smallpdf.us/compress-pdf",
+        "description": "Compress PDF files online for free with intelligent compression up to 80% size reduction",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "24891",
+        },
+        "featureList": [
+          "Compress up to 10 PDF files",
+          "Up to 80% size reduction",
+          "Smart image optimization",
+          "Batch processing",
+          "No quality loss",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Compress PDF Files",
+        "description": "Step-by-step guide to reducing PDF file size online",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PDF Files",
+            "text": "Select one or more PDF files from your device. You can compress up to 10 files at once, each up to 100MB.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose Compression Level",
+            "text": "Select maximum quality, balanced, or extreme compression based on your needs. Balanced is recommended for most users.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download Compressed Files",
+            "text": "Wait a few seconds for compression to complete. Download your smaller PDF files instantly.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Compress PDF Online Free | Reduce PDF File Size - SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Compress PDF files online for free. Reduce PDF file size by up to 80% without losing quality. Fast, secure PDF compressor with batch processing support."
-        />
-        <meta
-          name="keywords"
-          content="compress pdf, reduce pdf size, pdf compressor, shrink pdf, compress pdf online free, reduce pdf file size, pdf size reducer, make pdf smaller"
-        />
-        <link rel="canonical" href="https://smallpdf.us/compress-pdf" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/compress-pdf" />
-        <meta property="og:title" content="Compress PDF Online Free | Reduce PDF File Size - SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Compress PDF files instantly. Free, fast, and secure compression with up to 80% file size reduction."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PDF Compressor - SmallPDF.us",
-              url: "https://smallpdf.us/compress-pdf",
-              description: "Compress PDF files online for free with intelligent compression",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "24891",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Compress PDF Online Free - Reduce PDF File Size up to 80% | SmallPDF.us"
+        description="Compress PDF files online for free. Reduce PDF file size by up to 80% without losing quality. Fast, secure PDF compressor with batch processing support. No registration required."
+        canonical="https://smallpdf.us/compress-pdf"
+        ogImage="/og-compress-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="Compress PDF - Reduce PDF File Size"
@@ -491,7 +522,7 @@ export default function CompressPdf() {
                   3
                 </div>
                 <h3 className="font-display text-lg font-bold text-slate-900 mb-2">Download Smaller Files</h3>
-                <p className="font-body text-slate-600 text-sm">
+                <p className="font-body text-slate-660 text-sm">
                   Get your compressed PDFs instantly. They'll work exactly like before, just much smaller.
                 </p>
               </div>
@@ -564,6 +595,25 @@ export default function CompressPdf() {
                 receives your files.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-br from-rose-600 via-rose-700 to-rose-800 py-12 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Compress Your PDFs?
+            </h2>
+            <p className="font-body text-lg text-rose-100 mb-8 max-w-2xl mx-auto">
+              Join millions using SmallPDF.us to reduce file sizes. Fast, free, no signup needed.
+            </p>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="inline-flex items-center gap-2 bg-white text-rose-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-rose-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+            >
+              <Minimize2 className="w-5 h-5" />
+              <span>Start Compressing Now</span>
+            </button>
           </div>
         </div>
       </Layout>

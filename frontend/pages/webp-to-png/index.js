@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import { Upload, ImageIcon, AlertCircle, CheckCircle2, Zap, Shield, ChevronDown, FileImage } from "lucide-react"
-import Head from "next/head"
 
 export default function WebpToPng() {
   const router = useRouter()
@@ -160,53 +160,83 @@ export default function WebpToPng() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "WEBP to PNG Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/webp-to-png",
+        "description": "Convert WEBP images to PNG format online for free",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.7",
+          "ratingCount": "18432",
+        },
+        "featureList": [
+          "Convert up to 20 WEBP images",
+          "Lossless quality conversion",
+          "Universal PNG compatibility",
+          "Batch processing support",
+          "Secure encryption",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert WEBP to PNG",
+        "description": "Step-by-step guide to converting WEBP images to PNG format",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload WEBP Images",
+            "text": "Select your WEBP files from your device. You can upload up to 20 images at once for batch conversion.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Preview and Confirm",
+            "text": "Review your uploaded images. Remove any you don't want to convert before proceeding.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download PNG Files",
+            "text": "Download your converted PNG images individually or get all files in a single ZIP archive.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Convert WEBP to PNG Online Free | WEBP to PNG Converter - SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert WEBP images to PNG format online for free. Fast, secure WEBP to PNG converter with batch processing. No registration required. Preserve image quality instantly."
-        />
-        <meta
-          name="keywords"
-          content="webp to png, convert webp to png, webp to png converter, webp converter online, change webp to png, webp image converter, free webp to png"
-        />
-        <link rel="canonical" href="https://smallpdf.us/webp-to-png" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/webp-to-png" />
-        <meta property="og:title" content="Convert WEBP to PNG Online Free | WEBP to PNG Converter - SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Convert WEBP images to PNG format instantly. Free, fast, and secure conversion with batch processing support."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "WEBP to PNG Converter - SmallPDF.us",
-              url: "https://smallpdf.us/webp-to-png",
-              description: "Convert WEBP images to PNG format online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.7",
-                ratingCount: "18432",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Convert WEBP to PNG Online Free | WEBP to PNG Converter - SmallPDF.us"
+        description="Convert WEBP images to PNG format online for free. Fast, secure WEBP to PNG converter with batch processing. No registration required. Preserve image quality instantly."
+        canonical="https://smallpdf.us/webp-to-png"
+        ogImage="/og-webp-to-png.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="WEBP to PNG - Convert WEBP Images Online"
@@ -304,7 +334,6 @@ export default function WebpToPng() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
@@ -536,6 +565,25 @@ export default function WebpToPng() {
                 any of the quality from your original WEBP files.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-br from-teal-600 to-emerald-600 py-12 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Convert Your Images?
+            </h2>
+            <p className="font-body text-lg text-teal-100 mb-8 max-w-2xl mx-auto">
+              Join thousands using SmallPDF.us every day. Fast, free, and no signup required.
+            </p>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="inline-flex items-center gap-2 bg-white text-teal-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-teal-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+            >
+              <FileImage className="w-5 h-5" />
+              <span>Start Converting Now</span>
+            </button>
           </div>
         </div>
       </Layout>

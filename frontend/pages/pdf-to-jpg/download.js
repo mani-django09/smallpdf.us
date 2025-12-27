@@ -5,126 +5,123 @@ import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
 import {
   Download,
+  CheckCircle2,
   ImageIcon,
-  CheckCircle,
+  ArrowLeft,
+  Shield,
+  Clock,
+  FileImage,
   Share2,
   RefreshCw,
-  Shield,
-  Zap,
-  Clock,
-  Copy,
-  ChevronRight,
-  ArrowRight,
-  Lock,
-  Layers,
-  Timer,
-  Camera,
-  Palette,
+  AlertCircle,
 } from "lucide-react"
 
-export default function DownloadJPGPage() {
+export default function DownloadJPG() {
   const router = useRouter()
-  const { file } = router.query
-  const [conversionResult, setConversionResult] = useState(null)
+  const [result, setResult] = useState(null)
   const [downloading, setDownloading] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [downloadComplete, setDownloadComplete] = useState(false)
-  const [copied, setCopied] = useState(false)
-  const [countdown, setCountdown] = useState(3600)
-  const [mounted, setMounted] = useState(false)
+  const [downloaded, setDownloaded] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    setMounted(true)
-    const result = sessionStorage.getItem("jpgConversionResult")
-    if (result) {
-      setConversionResult(JSON.parse(result))
-      setTimeout(() => setShowSuccess(true), 100)
-    } else if (!file) {
+    const storedResult = sessionStorage.getItem("jpgConversionResult")
+    
+    if (storedResult) {
+      try {
+        const parsed = JSON.parse(storedResult)
+        console.log("Loaded conversion result:", parsed)
+        setResult(parsed)
+      } catch (err) {
+        console.error("Error parsing result:", err)
+        setError("Failed to load conversion result")
+      }
+    } else {
+      // No result found, redirect back
+      console.log("No conversion result found, redirecting...")
       router.push("/pdf-to-jpg")
     }
-  }, [file, router])
-
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => prev - 1)
-      }, 1000)
-      return () => clearInterval(timer)
-    }
-  }, [countdown])
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
+  }, [router])
 
   const handleDownload = async () => {
-    if (!file) return
+    if (!result || !result.downloadUrl) {
+      setError("Download URL not found")
+      return
+    }
+
     setDownloading(true)
+    setError("")
 
     try {
-      const downloadUrl = `http://localhost:5011${file}`
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5011'
+      const downloadUrl = `${API_URL}${result.downloadUrl}`
+      
+      console.log("Downloading from:", downloadUrl)
+      console.log("isZip:", result.isZip)
+      
       const response = await fetch(downloadUrl)
-      if (!response.ok) throw new Error("Download failed")
-
+      
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText}`)
+      }
+      
       const blob = await response.blob()
+      console.log("Downloaded blob size:", blob.size, "type:", blob.type)
+      
       const url = window.URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `pdf-images-${Date.now()}.zip`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      const a = document.createElement('a')
+      a.href = url
+      
+      // Determine filename based on isZip flag
+      let downloadFilename
+      if (result.isZip === true) {
+        // It's a ZIP file with multiple images
+        downloadFilename = result.convertedName || 'converted-images.zip'
+      } else {
+        // It's a single JPG image
+        const originalBaseName = result.originalName?.replace(/\.pdf$/i, '') || 'converted'
+        downloadFilename = `${originalBaseName}.jpg`
+      }
+      
+      console.log("Saving as:", downloadFilename)
+      a.download = downloadFilename
+      
+      document.body.appendChild(a)
+      a.click()
       window.URL.revokeObjectURL(url)
-
-      setDownloadComplete(true)
-      setTimeout(() => setDownloadComplete(false), 3000)
-    } catch (error) {
-      console.error("Download error:", error)
-      alert("Failed to download file. Please try again.")
+      document.body.removeChild(a)
+      
+      setDownloaded(true)
+    } catch (err) {
+      console.error('Download error:', err)
+      setError(`Download failed: ${err.message}`)
     } finally {
       setDownloading(false)
     }
   }
 
   const handleConvertAnother = () => {
-    sessionStorage.removeItem("uploadedPDFFile")
     sessionStorage.removeItem("jpgConversionResult")
+    sessionStorage.removeItem("uploadedPDFFile")
     router.push("/pdf-to-jpg")
   }
 
-  const handleCopyLink = () => {
-    const fullUrl = `${window.location.origin}${file}`
-    navigator.clipboard.writeText(fullUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "My Extracted JPG Images",
-          text: "Check out my converted images from PDF",
-          url: window.location.href,
-        })
-      } catch (err) {
-        console.log("Share failed:", err)
-      }
-    } else {
-      handleCopyLink()
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "N/A"
+    if (bytes >= 1024 * 1024) {
+      return (bytes / (1024 * 1024)).toFixed(2) + " MB"
     }
+    return (bytes / 1024).toFixed(1) + " KB"
   }
 
-  if (!conversionResult && !file) {
+  // Loading state
+  if (!result) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
           <div className="text-center">
-            <div className="relative w-12 h-12 mx-auto mb-4">
+            <div className="relative w-12 h-12 mx-auto mb-3">
               <div className="absolute inset-0 border-3 border-slate-200 rounded-full"></div>
-              <div className="absolute inset-0 border-3 border-t-amber-500 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 border-3 border-t-blue-600 rounded-full animate-spin"></div>
             </div>
             <p className="text-slate-600 font-medium text-sm">Loading your images...</p>
           </div>
@@ -134,62 +131,23 @@ export default function DownloadJPGPage() {
   }
 
   return (
-    <Layout
-      title="Download JPG Images - Extraction Complete | SmallPDF.us"
-      description="Download your extracted JPG images from PDF with perfect quality"
-    >
+    <Layout title="Download JPG Images" description="Your converted JPG images are ready">
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
         
         .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-body { font-family: 'DM Sans', sans-serif; }
         
-        @keyframes checkmark-draw {
-          0% { stroke-dashoffset: 24; }
-          100% { stroke-dashoffset: 0; }
-        }
-        
-        @keyframes circle-fill {
+        @keyframes checkmark {
           0% { transform: scale(0); opacity: 0; }
-          50% { transform: scale(1.1); }
+          50% { transform: scale(1.2); }
           100% { transform: scale(1); opacity: 1; }
         }
-        
-        @keyframes fade-up {
-          0% { opacity: 0; transform: translateY(16px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        
-        .animate-checkmark { animation: checkmark-draw 0.4s ease-out 0.3s forwards; stroke-dasharray: 24; stroke-dashoffset: 24; }
-        .animate-circle { animation: circle-fill 0.3s ease-out forwards; }
-        .animate-fade-up { animation: fade-up 0.5s ease-out forwards; }
-        .animate-fade-up-delay-1 { animation: fade-up 0.5s ease-out 0.1s forwards; opacity: 0; }
-        .animate-fade-up-delay-2 { animation: fade-up 0.5s ease-out 0.2s forwards; opacity: 0; }
-        
-        .btn-shimmer {
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          background-size: 200% 100%;
-          animation: shimmer 2s infinite;
-        }
-        
-        .glass-card {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-        }
-        
-        .jpg-icon-gradient {
-          background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
-        }
+        .animate-checkmark { animation: checkmark 0.5s ease-out forwards; }
       `}</style>
 
-      {/* Compact Hero Success Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-amber-600 to-orange-600">
+      {/* Success Header */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -200,308 +158,221 @@ export default function DownloadJPGPage() {
           ></div>
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className={`relative flex-shrink-0 ${mounted ? "animate-fade-up" : ""}`}>
-                <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 13l4 4L19 7"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="animate-checkmark"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className={`${mounted ? "animate-fade-up-delay-1" : "opacity-0"}`}>
-                <h1 className="font-display text-xl sm:text-2xl font-bold text-white tracking-tight">
-                  Images Extracted Successfully
-                </h1>
-                <p className="font-body text-amber-100 text-sm">Your JPG files are ready for download</p>
-              </div>
+        <div className="relative max-w-5xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 text-white animate-checkmark" />
             </div>
-
-            <div className={`flex items-center gap-2 ${mounted ? "animate-fade-up-delay-2" : "opacity-0"}`}>
-              <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-white">
-                <Timer className="w-3.5 h-3.5" />
-                <span>{formatTime(countdown)}</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-white">
-                <Lock className="w-3.5 h-3.5" />
-                <span>Secure</span>
-              </div>
+            <div>
+              <h1 className="font-display text-xl sm:text-2xl font-bold text-white">
+                Conversion Complete!
+              </h1>
+              <p className="font-body text-sm text-white/80">
+                {result.pageCount === 1 
+                  ? "Your JPG image is ready to download"
+                  : `${result.pageCount} JPG images are ready to download`
+                }
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="bg-slate-50/50 py-8 sm:py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* Main Download Section */}
-            <div className="lg:col-span-8 space-y-6">
-              {/* Download Card */}
-              <div className="glass-card rounded-2xl border border-slate-200/60 shadow-xl shadow-slate-200/50 overflow-hidden">
-                {/* File Preview Header */}
-                <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 jpg-icon-gradient rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 flex-shrink-0">
-                      <ImageIcon className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h2 className="font-display text-lg sm:text-xl font-semibold text-white truncate">
-                        extracted-images.zip
-                      </h2>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="inline-flex items-center gap-1.5 bg-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full text-xs font-medium">
-                          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
-                          Ready
-                        </span>
-                        <span className="text-slate-400 text-sm">ZIP • Multiple JPG Files</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Download Actions */}
-                <div className="p-6 sm:p-8">
-                  <button
-                    onClick={handleDownload}
-                    disabled={downloading}
-                    className="group relative w-full bg-gradient-to-r from-amber-600 to-orange-500 text-white py-4 sm:py-5 px-6 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:from-amber-500 hover:to-orange-600 overflow-hidden"
-                  >
-                    <div className="absolute inset-0 btn-shimmer"></div>
-                    {downloading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span className="relative">Preparing Download...</span>
-                      </>
-                    ) : downloadComplete ? (
-                      <>
-                        <CheckCircle className="w-5 h-5" />
-                        <span className="relative">Downloaded Successfully!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-5 h-5 group-hover:animate-bounce" />
-                        <span className="relative">Download JPG Images</span>
-                        <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-                      </>
-                    )}
-                  </button>
-
-                  {/* Conversion Stats */}
-                  <div className="grid grid-cols-3 gap-3 mt-6">
-                    <div className="text-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <div className="font-display text-2xl sm:text-3xl font-bold text-slate-900">3.1s</div>
-                      <div className="font-body text-xs text-slate-500 mt-1">Extraction</div>
-                    </div>
-                    <div className="text-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <div className="font-display text-2xl sm:text-3xl font-bold text-amber-600">300</div>
-                      <div className="font-body text-xs text-slate-500 mt-1">DPI Quality</div>
-                    </div>
-                    <div className="text-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <div className="font-display text-2xl sm:text-3xl font-bold text-slate-900">JPG</div>
-                      <div className="font-body text-xs text-slate-500 mt-1">Format</div>
-                    </div>
-                  </div>
-
-                  {/* Secondary Actions */}
-                  <div className="flex items-center gap-3 mt-6 pt-6 border-t border-slate-100">
-                    <button
-                      onClick={handleConvertAnother}
-                      className="flex-1 py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      <span>Convert Another PDF</span>
-                    </button>
-                    <button
-                      onClick={handleShare}
-                      className="py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleCopyLink}
-                      className="py-3 px-4 rounded-xl font-medium text-sm bg-slate-100 hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-slate-700"
-                    >
-                      {copied ? <CheckCircle className="w-4 h-4 text-amber-600" /> : <Copy className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
+      <div className="bg-slate-50 min-h-screen py-8 px-4">
+        <div className="max-w-3xl mx-auto">
+          
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-red-800">{error}</p>
+                <button 
+                  onClick={() => setError("")}
+                  className="text-sm text-red-600 hover:text-red-800 mt-1"
+                >
+                  Dismiss
+                </button>
               </div>
+            </div>
+          )}
 
-              {/* Features Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="glass-card p-5 rounded-xl border border-slate-200/60">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mb-3 shadow-lg shadow-amber-500/20">
-                    <Camera className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="font-display font-semibold text-slate-900 mb-1">Crystal Clear Quality</h3>
-                  <p className="font-body text-sm text-slate-600">High-resolution images with perfect clarity</p>
+          {/* Download Card */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6">
+            {/* File Info */}
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  {result.isZip ? (
+                    <FileImage className="w-7 h-7 text-white" />
+                  ) : (
+                    <ImageIcon className="w-7 h-7 text-white" />
+                  )}
                 </div>
-
-                <div className="glass-card p-5 rounded-xl border border-slate-200/60">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center mb-3 shadow-lg shadow-yellow-500/20">
-                    <Zap className="w-5 h-5 text-white" />
+                <div className="flex-1">
+                  <p className="font-display text-base font-semibold text-white truncate">
+                    {result.isZip 
+                      ? result.convertedName 
+                      : `${result.originalName?.replace(/\.pdf$/i, '')}.jpg`
+                    }
+                  </p>
+                  <div className="flex items-center gap-3 text-sm text-slate-400 mt-1">
+                    <span>{formatFileSize(result.fileSize)}</span>
+                    <span className="w-1 h-1 bg-slate-500 rounded-full"></span>
+                    <span>
+                      {result.pageCount === 1 
+                        ? "1 Image (JPG)" 
+                        : `${result.pageCount} Images (ZIP)`
+                      }
+                    </span>
                   </div>
-                  <h3 className="font-display font-semibold text-slate-900 mb-1">Instant Processing</h3>
-                  <p className="font-body text-sm text-slate-600">Pages extracted in seconds, not minutes</p>
                 </div>
-
-                <div className="glass-card p-5 rounded-xl border border-slate-200/60">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mb-3 shadow-lg shadow-emerald-500/20">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="font-display font-semibold text-slate-900 mb-1">Private & Secure</h3>
-                  <p className="font-body text-sm text-slate-600">Files auto-delete after 60 minutes</p>
-                </div>
-
-                <div className="glass-card p-5 rounded-xl border border-slate-200/60">
-                  <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center mb-3 shadow-lg shadow-violet-500/20">
-                    <Palette className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="font-display font-semibold text-slate-900 mb-1">True Color Accuracy</h3>
-                  <p className="font-body text-sm text-slate-600">Vibrant colors preserved from source</p>
-                </div>
-              </div>
-
-              {/* More Tools Section */}
-              <div className="glass-card rounded-2xl border border-slate-200/60 overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                  <h3 className="font-display text-lg font-semibold text-slate-900">Explore More PDF Tools</h3>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                      {
-                        name: "JPG to PDF",
-                        desc: "Combine images into PDF",
-                        href: "/jpg-to-pdf",
-                        color: "from-blue-500 to-blue-600",
-                      },
-                      {
-                        name: "PDF to PNG",
-                        desc: "Extract transparent images",
-                        href: "/pdf-to-png",
-                        color: "from-purple-500 to-purple-600",
-                      },
-                      {
-                        name: "Compress PDF",
-                        desc: "Reduce file size",
-                        href: "/compress-pdf",
-                        color: "from-rose-500 to-rose-600",
-                      },
-                    ].map((tool) => (
-                      <a
-                        key={tool.name}
-                        href={tool.href}
-                        className="group p-4 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 bg-white"
-                      >
-                        <div
-                          className={`w-10 h-10 bg-gradient-to-br ${tool.color} rounded-lg flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-transform duration-300`}
-                        >
-                          <Layers className="w-5 h-5 text-white" />
-                        </div>
-                        <h4 className="font-display font-semibold text-slate-900 mb-0.5">{tool.name}</h4>
-                        <p className="font-body text-sm text-slate-500 mb-2">{tool.desc}</p>
-                        <span className="inline-flex items-center text-sm font-medium text-slate-700 group-hover:text-amber-600 transition-colors">
-                          Try now
-                          <ChevronRight className="w-4 h-4 ml-0.5 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      </a>
-                    ))}
-                  </div>
+                <div className="flex items-center gap-2 bg-emerald-500/20 px-3 py-1.5 rounded-full">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                  <span className="text-sm font-medium text-emerald-300">Ready</span>
                 </div>
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* File Expiry Notice */}
-              <div className="glass-card rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 overflow-hidden">
-                <div className="px-5 py-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-amber-600" />
-                    </div>
+            {/* Download Actions */}
+            <div className="p-6">
+              {/* Info Banner for Single Image */}
+              {!result.isZip && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5">
+                  <div className="flex items-start gap-3">
+                    <ImageIcon className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h3 className="font-display text-sm font-semibold text-slate-900">File Available</h3>
-                      <p className="font-body text-xs text-slate-600">Download within 1 hour</p>
-                    </div>
-                  </div>
-                  <div className="bg-white/60 rounded-lg p-3 border border-amber-200/50">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-body text-xs text-slate-600">Time remaining</span>
-                      <span className="font-display text-sm font-bold text-amber-600">{formatTime(countdown)}</span>
-                    </div>
-                    <div className="bg-amber-200 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all duration-1000"
-                        style={{ width: `${(countdown / 3600) * 100}%` }}
-                      ></div>
+                      <p className="font-display text-sm font-semibold text-blue-900">
+                        Single Page PDF
+                      </p>
+                      <p className="font-body text-xs text-blue-700 mt-1">
+                        Your PDF has only one page, so we've created a single high-quality JPG image instead of a ZIP file.
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Image Uses */}
-              <div className="glass-card rounded-2xl border border-slate-200/60 overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-                  <h3 className="font-display text-sm font-semibold text-slate-900">Use Your Images For</h3>
-                </div>
-                <div className="p-5">
-                  <div className="space-y-3">
-                    {[
-                      { icon: "📱", text: "Social media posts" },
-                      { icon: "📊", text: "Presentation slides" },
-                      { icon: "🌐", text: "Website content" },
-                      { icon: "✉️", text: "Email newsletters" },
-                      { icon: "🖨️", text: "Print materials" },
-                      { icon: "📁", text: "Digital archives" },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm">
-                        <span className="text-lg">{item.icon}</span>
-                        <span className="font-body text-slate-700">{item.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Ad Space */}
-              <div className="glass-card rounded-2xl border border-slate-200/60 overflow-hidden">
-                <div className="px-5 py-3 border-b border-slate-100">
-                  <p className="font-body text-[10px] font-medium text-slate-400 uppercase tracking-wider text-center">
-                    Advertisement
-                  </p>
-                </div>
-                <div className="p-5">
-                  <div className="bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center aspect-[4/5]">
-                    <div className="text-center">
-                      <p className="text-xs text-slate-400">Ad Space</p>
-                      <p className="text-xl font-semibold text-slate-300">300×400</p>
+              {/* Info Banner for ZIP */}
+              {result.isZip && (
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-5">
+                  <div className="flex items-start gap-3">
+                    <FileImage className="w-5 h-5 text-indigo-600 mt-0.5" />
+                    <div>
+                      <p className="font-display text-sm font-semibold text-indigo-900">
+                        {result.pageCount} Images in ZIP
+                      </p>
+                      <p className="font-body text-xs text-indigo-700 mt-1">
+                        All {result.pageCount} pages have been converted to high-quality JPG images and packaged in a ZIP file.
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Quick Tips */}
-              <div className="glass-card rounded-2xl border border-slate-200/60 p-5">
-                <h3 className="font-display text-sm font-semibold text-slate-900 mb-3">Quick Tips</h3>
-                <div className="space-y-2 text-xs text-slate-600">
-                  <p>💡 JPG images work everywhere - email, web, print</p>
-                  <p>💡 Save to cloud storage for permanent access</p>
-                  <p>💡 Rename files to stay organized</p>
+              {/* Download Button */}
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className={`w-full py-4 px-6 rounded-xl font-display font-semibold text-base flex items-center justify-center gap-3 transition-all ${
+                  downloaded
+                    ? "bg-emerald-100 text-emerald-700 border-2 border-emerald-300"
+                    : downloading
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/25"
+                }`}
+              >
+                {downloading ? (
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <span>Downloading...</span>
+                  </>
+                ) : downloaded ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Downloaded Successfully!</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    <span>
+                      {result.isZip 
+                        ? `Download ZIP (${result.pageCount} images)` 
+                        : "Download JPG Image"
+                      }
+                    </span>
+                  </>
+                )}
+              </button>
+
+              {/* Download Again Button */}
+              {downloaded && (
+                <button
+                  onClick={() => { setDownloaded(false); handleDownload(); }}
+                  className="w-full mt-3 py-3 px-6 rounded-xl font-display font-medium text-sm flex items-center justify-center gap-2 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Again</span>
+                </button>
+              )}
+
+              {/* Security Note */}
+              <div className="mt-5 flex items-center justify-center gap-4 text-xs text-slate-500">
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-emerald-600" />
+                  <span>Secure download</span>
+                </div>
+                <div className="w-1 h-1 bg-slate-300 rounded-full"></div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  <span>Files auto-delete in 1 hour</span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Convert Another */}
+          <div className="text-center">
+            <button
+              onClick={handleConvertAnother}
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-blue-600 font-medium text-sm transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Convert Another PDF</span>
+            </button>
+          </div>
+
+          {/* Tips Section */}
+          <div className="mt-8 bg-white rounded-xl p-5 border border-slate-200">
+            <h3 className="font-display text-sm font-semibold text-slate-900 mb-3">
+              What can you do with your {result.isZip ? "images" : "image"}?
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { icon: Share2, text: "Share on social media" },
+                { icon: FileImage, text: "Use in presentations" },
+                { icon: ImageIcon, text: "Add to documents" },
+                { icon: Download, text: "Archive for later" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                  <item.icon className="w-4 h-4 text-blue-600" />
+                  <span>{item.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Debug Info (remove in production) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-lg text-xs font-mono">
+              <p><strong>Debug Info:</strong></p>
+              <p>isZip: {String(result.isZip)}</p>
+              <p>pageCount: {result.pageCount}</p>
+              <p>downloadUrl: {result.downloadUrl}</p>
+              <p>convertedName: {result.convertedName}</p>
+            </div>
+          )}
         </div>
       </div>
     </Layout>

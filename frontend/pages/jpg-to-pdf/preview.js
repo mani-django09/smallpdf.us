@@ -46,75 +46,116 @@ export default function PreviewJpgToPdf() {
   }
 
   const handleConvert = async () => {
-    const filesToConvert = filesData.filter((f) => selectedFiles.includes(f.id))
-    if (filesToConvert.length === 0) return
+  const filesToConvert = filesData.filter((f) => selectedFiles.includes(f.id))
+  if (filesToConvert.length === 0) return
 
-    setConverting(true)
-    setProgress(0)
-    setStage("Preparing images...")
+  setConverting(true)
+  setProgress(0)
+  setStage("Preparing images...")
 
-    const stages = [
-      { progress: 15, text: "Uploading JPG files...", delay: 400 },
-      { progress: 35, text: "Processing images...", delay: 500 },
-      { progress: 55, text: "Creating PDF document...", delay: 600 },
-      { progress: 75, text: "Embedding images...", delay: 400 },
-      { progress: 90, text: "Finalizing PDF...", delay: 300 },
-    ]
+  const stages = [
+    { progress: 15, text: "Converting to JPEG...", delay: 400 },
+    { progress: 35, text: "Uploading files...", delay: 500 },
+    { progress: 55, text: "Creating PDF document...", delay: 600 },
+    { progress: 75, text: "Embedding images...", delay: 400 },
+    { progress: 90, text: "Finalizing PDF...", delay: 300 },
+  ]
 
-    let currentStage = 0
-    const updateProgress = () => {
-      if (currentStage < stages.length) {
-        setProgress(stages[currentStage].progress)
-        setStage(stages[currentStage].text)
-        currentStage++
-        setTimeout(updateProgress, stages[currentStage - 1].delay)
-      }
-    }
-    updateProgress()
-
-    try {
-      const formData = new FormData()
-
-      for (const fileData of filesToConvert) {
-        const response = await fetch(fileData.data)
-        const blob = await response.blob()
-        const file = new File([blob], fileData.name, { type: fileData.type || "image/jpeg" })
-        formData.append("files", file)
-      }
-
-      const convertResponse = await fetch("http://localhost:5000/api/jpg-to-pdf", {
-        method: "POST",
-        body: formData,
-      })
-
-      const result = await convertResponse.json()
-
-      setProgress(100)
-      setStage("Complete!")
-
-      if (convertResponse.ok) {
-        sessionStorage.setItem(
-          "jpgConvertResult",
-          JSON.stringify({
-            ...result,
-            fileCount: filesToConvert.length,
-            totalSize: filesToConvert.reduce((acc, f) => acc + f.size, 0),
-          }),
-        )
-        setTimeout(() => {
-          router.push(`/jpg-to-pdf/download?jobId=${result.jobId}`)
-        }, 500)
-      } else {
-        alert("Conversion failed: " + result.error)
-        setConverting(false)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to convert files. Please try again.")
-      setConverting(false)
+  let currentStage = 0
+  const updateProgress = () => {
+    if (currentStage < stages.length) {
+      setProgress(stages[currentStage].progress)
+      setStage(stages[currentStage].text)
+      currentStage++
+      setTimeout(updateProgress, stages[currentStage - 1].delay)
     }
   }
+  updateProgress()
 
+  try {
+    const formData = new FormData()
+
+    for (const fileData of filesToConvert) {
+      try {
+        // Load image into canvas and convert to JPEG
+        const img = new Image()
+        img.src = fileData.data
+        
+        await new Promise((resolve, reject) => {
+          img.onload = resolve
+          img.onerror = reject
+        })
+
+        // Create canvas
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        
+        // Draw image
+        const ctx = canvas.getContext('2d')
+        ctx.fillStyle = 'white' // Fill with white background for JPEG
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(img, 0, 0)
+        
+        // Convert to JPEG blob
+        const jpegBlob = await new Promise((resolve) => {
+          canvas.toBlob(resolve, 'image/jpeg', 0.95)
+        })
+        
+        // Create proper JPEG file
+        const baseName = fileData.name.replace(/\.(jpg|jpeg|png|webp)$/i, '')
+        const filename = baseName + '.jpg'
+        
+        const file = new File([jpegBlob], filename, { 
+          type: 'image/jpeg',
+          lastModified: Date.now()
+        })
+        
+        console.log('Created JPEG file:', filename, 'Type:', file.type, 'Size:', file.size)
+        formData.append("files", file)
+        
+      } catch (fileError) {
+        console.error(`Error processing file ${fileData.name}:`, fileError)
+      }
+    }
+
+    console.log('Sending request to backend...')
+    
+    const convertResponse = await fetch("https://smallpdf.us/api/jpg-to-pdf", {
+      method: "POST",
+      body: formData,
+    })
+
+    console.log('Response status:', convertResponse.status)
+    const result = await convertResponse.json()
+    console.log('Response data:', result)
+
+    setProgress(100)
+    setStage("Complete!")
+
+    if (convertResponse.ok) {
+      sessionStorage.setItem(
+        "jpgConvertResult",
+        JSON.stringify({
+          ...result,
+          fileCount: filesToConvert.length,
+          totalSize: filesToConvert.reduce((acc, f) => acc + f.size, 0),
+        }),
+      )
+      setTimeout(() => {
+        router.push(`/jpg-to-pdf/download?jobId=${result.jobId}`)
+      }, 500)
+    } else {
+      console.error("Conversion failed:", result)
+      alert("Conversion failed: " + (result.error || "Unknown error"))
+      setConverting(false)
+    }
+  } catch (error) {
+    console.error("Error:", error)
+    alert("Failed to convert files: " + error.message)
+    setConverting(false)
+  }
+}
   const totalSize = filesData.reduce((acc, f) => acc + f.size, 0)
   const selectedCount = selectedFiles.length
 

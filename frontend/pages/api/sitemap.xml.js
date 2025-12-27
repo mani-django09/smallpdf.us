@@ -1,161 +1,44 @@
 // pages/api/sitemap.xml.js
+export default function handler(req, res) {
+  const baseUrl = 'https://smallpdf.us'
+  const currentDate = new Date().toISOString().split('T')[0]
 
-export default async function handler(req, res) {
-  try {
-    // Fetch blog posts from your API
-    const blogResponse = await fetch('http://localhost:5011/api/blog/posts?limit=100')
-    const blogData = await blogResponse.json()
-    const blogPosts = blogData.success ? blogData.posts : []
+  // Define all your pages with their priority and change frequency
+  const pages = [
+    { url: '', changefreq: 'daily', priority: '1.0' }, // Homepage
+    { url: '/merge-pdf', changefreq: 'weekly', priority: '0.9' },
+    { url: '/split-pdf', changefreq: 'weekly', priority: '0.9' },
+    { url: '/compress-pdf', changefreq: 'weekly', priority: '0.9' },
+    { url: '/pdf-to-word', changefreq: 'weekly', priority: '0.9' },
+    { url: '/word-to-pdf', changefreq: 'weekly', priority: '0.9' },
+    { url: '/pdf-to-jpg', changefreq: 'weekly', priority: '0.8' },
+    { url: '/jpg-to-pdf', changefreq: 'weekly', priority: '0.8' },
+    { url: '/png-to-pdf', changefreq: 'weekly', priority: '0.8' },
+    { url: '/pdf-to-png', changefreq: 'weekly', priority: '0.8' },
+    { url: '/compress-image', changefreq: 'weekly', priority: '0.8' },
+    { url: '/webp-to-png', changefreq: 'weekly', priority: '0.7' },
+    { url: '/png-to-webp', changefreq: 'weekly', priority: '0.7' },
+    { url: '/about', changefreq: 'monthly', priority: '0.5' },
+    { url: '/privacy-policy', changefreq: 'yearly', priority: '0.3' },
+    { url: '/terms-of-service', changefreq: 'yearly', priority: '0.3' },
+  ]
 
-    // Static pages
-    const staticPages = [
-      {
-        url: 'https://smallpdf.us/',
-        lastmod: '2024-12-24',
-        changefreq: 'daily',
-        priority: '1.0'
-      },
-      // PDF Conversion Tools
-      {
-        url: 'https://smallpdf.us/word-to-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/pdf-to-word',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/pdf-to-jpg',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/jpg-to-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/pdf-to-png',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/png-to-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/webp-to-png',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.8'
-      },
-      // PDF Manipulation
-      {
-        url: 'https://smallpdf.us/merge-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/split-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      {
-        url: 'https://smallpdf.us/compress-pdf',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.9'
-      },
-      // Image Tools
-      {
-        url: 'https://smallpdf.us/compress-image',
-        lastmod: '2024-12-24',
-        changefreq: 'weekly',
-        priority: '0.8'
-      },
-      // Info Pages
-      {
-        url: 'https://smallpdf.us/about',
-        lastmod: '2024-12-24',
-        changefreq: 'monthly',
-        priority: '0.7'
-      },
-      {
-        url: 'https://smallpdf.us/contact',
-        lastmod: '2024-12-24',
-        changefreq: 'monthly',
-        priority: '0.7'
-      },
-      {
-        url: 'https://smallpdf.us/privacy',
-        lastmod: '2024-12-24',
-        changefreq: 'monthly',
-        priority: '0.6'
-      },
-      {
-        url: 'https://smallpdf.us/terms',
-        lastmod: '2024-12-24',
-        changefreq: 'monthly',
-        priority: '0.6'
-      },
-      // Blog
-      {
-        url: 'https://smallpdf.us/blog',
-        lastmod: '2024-12-24',
-        changefreq: 'daily',
-        priority: '0.8'
-      }
-    ]
-
-    // Dynamic blog post URLs
-    const blogUrls = blogPosts.map(post => ({
-      url: `https://smallpdf.us/blog/${post.slug}`,
-      lastmod: post.updated_at || post.created_at,
-      changefreq: 'weekly',
-      priority: '0.7'
-    }))
-
-    // Combine all URLs
-    const allPages = [...staticPages, ...blogUrls]
-
-    // Generate XML
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-${allPages
-  .map(
-    page => `
-  <url>
-    <loc>${page.url}</loc>
-    <lastmod>${page.lastmod}</lastmod>
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${pages.map(page => `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${currentDate}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
-  </url>`
-  )
-  .join('')}
+  </url>`).join('\n')}
 </urlset>`
 
-    // Set headers
-    res.setHeader('Content-Type', 'text/xml')
-    res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate')
-    
-    // Send response
-    res.status(200).send(sitemap)
-  } catch (error) {
-    console.error('Sitemap generation error:', error)
-    res.status(500).json({ error: 'Failed to generate sitemap' })
-  }
+  res.setHeader('Content-Type', 'text/xml')
+  res.setHeader('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate')
+  res.write(sitemap)
+  res.end()
 }

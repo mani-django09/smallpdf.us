@@ -3,6 +3,8 @@
 import { useState, useCallback, useEffect } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
+import AdSenseUnit from "../../components/AdSenseUnit"
 import {
   Upload,
   FileText,
@@ -14,31 +16,6 @@ import {
   ChevronDown,
   Layers,
 } from "lucide-react"
-import Head from "next/head"
-
-// AdSense Component
-function AdSenseUnit({ adSlot, style = {} }) {
-  useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        (window.adsbygoogle = window.adsbygoogle || []).push({})
-      }
-    } catch (err) {
-      console.error("AdSense:", err)
-    }
-  }, [])
-
-  return (
-    <ins
-      className="adsbygoogle"
-      style={{ display: "block", ...style }}
-      data-ad-client="ca-pub-6913093595582462"
-      data-ad-slot={adSlot}
-      data-ad-format="auto"
-      data-full-width-responsive="true"
-    />
-  )
-}
 
 export default function MergePDF() {
   const router = useRouter()
@@ -194,53 +171,83 @@ export default function MergePDF() {
     },
   ]
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PDF Merger - SmallPDF.us",
+        "url": "https://smallpdf.us/merge-pdf",
+        "description": "Merge and combine multiple PDF files into one document online for free",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "26341",
+        },
+        "featureList": [
+          "Merge up to 20 PDF files",
+          "Drag and drop interface",
+          "Secure file processing",
+          "Instant merging",
+          "No file size limits",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Merge PDF Files",
+        "description": "Step-by-step guide to combining multiple PDF documents into one file",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PDF Files",
+            "text": "Select at least 2 PDF files from your device. You can upload up to 20 files at once.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Arrange Files in Order",
+            "text": "Drag and drop the files to arrange them in your preferred order. The merged PDF will follow this sequence.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Merge and Download",
+            "text": "Click the merge button and wait a few seconds. Download your combined PDF file instantly.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>Merge PDF Files Online Free - Combine Multiple PDFs | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Merge PDF files online for free. Combine multiple PDF documents into one file instantly. Easy drag-and-drop interface, secure processing, no registration needed."
-        />
-        <meta
-          name="keywords"
-          content="merge pdf, combine pdf, pdf merger, join pdf files, merge pdf online free, combine multiple pdfs, pdf combiner tool, merge pdf documents"
-        />
-        <link rel="canonical" href="https://smallpdf.us/merge-pdf" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/merge-pdf" />
-        <meta property="og:title" content="Merge PDF Files Online Free - Combine Multiple PDFs | SmallPDF.us" />
-        <meta
-          property="og:description"
-          content="Combine multiple PDF documents into one file instantly. Easy, secure, and completely free."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PDF Merger - SmallPDF.us",
-              url: "https://smallpdf.us/merge-pdf",
-              description: "Merge and combine multiple PDF files into one document online for free",
-              applicationCategory: "BusinessApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "26341",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="Merge PDF Files Online Free - Combine Multiple PDFs | SmallPDF.us"
+        description="Merge PDF files online for free. Combine multiple PDF documents into one file instantly. Easy drag-and-drop interface, secure processing, no registration needed."
+        canonical="https://smallpdf.us/merge-pdf"
+        ogImage="/og-merge-pdf.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="Merge PDF - Combine PDF Files Online"

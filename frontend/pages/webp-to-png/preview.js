@@ -46,6 +46,8 @@ export default function PreviewWebpToPng() {
   }
 
   const handleConvert = async () => {
+    console.log('🔍 API URL:', process.env.NEXT_PUBLIC_API_URL)
+    console.log('🔍 Full endpoint:', `${process.env.NEXT_PUBLIC_API_URL}/api/webp-to-png`)
     const filesToConvert = filesData.filter((f) => selectedFiles.includes(f.id))
     if (filesToConvert.length === 0) return
 
@@ -82,7 +84,7 @@ export default function PreviewWebpToPng() {
         formData.append("files", file)
       }
 
-      const convertResponse = await fetch("http://localhost:5011/api/webp-to-png", {
+      const convertResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/webp-to-png`, {
         method: "POST",
         body: formData,
       })

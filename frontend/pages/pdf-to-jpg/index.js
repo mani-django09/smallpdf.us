@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react"
 import { useRouter } from "next/router"
 import Layout from "../../components/Layout"
+import SEOHead from "../../components/SEOHead"
 import {
   Upload,
   ImageIcon,
@@ -17,7 +18,6 @@ import {
   Camera,
   Layers,
 } from "lucide-react"
-import Head from "next/head"
 
 export default function PDFToJPG() {
   const router = useRouter()
@@ -155,53 +155,84 @@ export default function PDFToJPG() {
     },
   ]
 
+  // Custom structured data for pdf-to-jpg page
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "PDF to JPG Converter - SmallPDF.us",
+        "url": "https://smallpdf.us/pdf-to-jpg",
+        "description": "Convert PDF documents to JPG images online for free with high quality 300 DPI output",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "21834",
+        },
+        "featureList": [
+          "Convert up to 200 PDF pages",
+          "300 DPI high quality output",
+          "Extract all pages to JPG",
+          "Batch ZIP download",
+          "Professional quality images",
+          "Free forever"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      },
+      {
+        "@type": "HowTo",
+        "name": "How to Convert PDF to JPG",
+        "description": "Step-by-step guide to extracting images from PDF documents",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Upload PDF Document",
+            "text": "Select a PDF file from your device. Files up to 100MB and 200 pages are supported.",
+            "position": 1
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Automatic Conversion",
+            "text": "Our system converts each PDF page to a high-quality 300 DPI JPG image. This takes just a few seconds.",
+            "position": 2
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Download Images",
+            "text": "Download individual images or get all pages in a ZIP file. Your images are ready to use anywhere.",
+            "position": 3
+          }
+        ]
+      }
+    ]
+  }
+
   return (
     <>
-      <Head>
-        <title>PDF to JPG Converter Online Free - Extract Images from PDF | SmallPDF.us</title>
-        <meta
-          name="description"
-          content="Convert PDF to JPG images online for free. Turn PDF pages into high-quality pictures instantly. No watermarks, simple and fast. Extract images from any PDF document."
-        />
-        <meta
-          name="keywords"
-          content="pdf to jpg, convert pdf to jpg, pdf to image, extract images from pdf, pdf to jpeg, pdf converter, free pdf to jpg, online pdf to image converter"
-        />
-        <link rel="canonical" href="https://smallpdf.us/pdf-to-jpg" />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://smallpdf.us/pdf-to-jpg" />
-        <meta property="og:title" content="PDF to JPG Converter Online Free - Extract Images from PDF" />
-        <meta
-          property="og:description"
-          content="Turn PDF pages into JPG images quickly and easily. Free online converter with no registration needed."
-        />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "PDF to JPG Converter - SmallPDF.us",
-              url: "https://smallpdf.us/pdf-to-jpg",
-              description: "Convert PDF documents to JPG images online for free",
-              applicationCategory: "MultimediaApplication",
-              operatingSystem: "Any",
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "21834",
-              },
-            }),
-          }}
-        />
-      </Head>
+      <SEOHead
+        title="PDF to JPG Converter Online Free - Extract Images from PDF | SmallPDF.us"
+        description="Convert PDF to JPG images online for free. Turn PDF pages into high-quality 300 DPI pictures instantly. Extract images from any PDF document. No watermarks, fast and secure."
+        canonical="https://smallpdf.us/pdf-to-jpg"
+        ogImage="/og-pdf-to-jpg.jpg"
+        structuredData={structuredData}
+      />
 
       <Layout
         title="PDF to JPG - Convert PDF Pages to Images"
@@ -299,7 +330,6 @@ export default function PDFToJPG() {
                 </div>
               ) : (
                 <>
-                  {/* Upload Area */}
                   <div
                     onDragEnter={handleDrag}
                     onDragLeave={handleDrag}
