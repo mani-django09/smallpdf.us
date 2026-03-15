@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -l \"useBatchGuard\" /c/Users/manik/OneDrive/Desktop/smallpdf/frontend/pages/*/index.js)",
+      "Bash(grep -L \"useBatchGuard\" /c/Users/manik/OneDrive/Desktop/smallpdf/frontend/pages/*/index.js)",
+      "Bash(node -e \"const p=require\\(''./backend/package.json''\\);console.log\\(Object.keys\\(p.dependencies||{}\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(npm install razorpay --save)",
+      "Bash(node payments/addRazorpayColumns.js)",
+      "Bash(Get-Content \"C:\\\\Users\\\\manik\\\\OneDrive\\\\Desktop\\\\smallpdf\\\\frontend\\\\public\\\\sitemap.xml\")",
+      "Bash(Measure-Object -Line)",
+      "Bash(for lang:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/manik/OneDrive/Desktop/smallpdf/frontend/messages/$lang/**)",
+      "Bash(done)",
+      "Bash(grep -r \"Head from\\\\|Head>\" /c/Users/manik/OneDrive/Desktop/smallpdf/frontend/pages/*.js)",
+      "Bash(grep -E \"^\\(sharp|canvas|jimp\\)$\")",
+      "Bash(node scripts/generate-og-image.js)",
+      "Bash(ls \"C:\\\\Users\\\\manik\\\\OneDrive\\\\Desktop\\\\smallpdf\\\\frontend\\\\public\"\" 2>/dev/null || dir \"C:UsersmanikOneDriveDesktopsmallpdffrontendpublic\"\")",
+      "Bash(dir \"C:\\\\Users\\\\manik\\\\OneDrive\\\\Desktop\\\\smallpdf\\\\frontend\\\\public\")",
+      "Bash(dir \"C:\\\\Users\\\\manik\\\\OneDrive\\\\Desktop\\\\smallpdf\\\\frontend\" /b)",
+      "Bash(find C:UsersmanikOneDriveDesktopsmallpdffrontendmessages -name *.json)",
+      "Bash(for f:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(open\\(''C:/Users/manik/OneDrive/Desktop/smallpdf/frontend/messages/en/$f.json''\\)\\); print\\(json.dumps\\({k:v for k,v in d.items\\(\\) if any\\(x in k.lower\\(\\) for x in [''title'',''description'',''seo'',''meta'',''keyword'']\\)}, indent=2\\)\\)\")",
+      "Bash(node scripts/generate-all-og-images.js)"
+    ]
+  }
+}
